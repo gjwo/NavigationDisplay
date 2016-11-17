@@ -6,10 +6,6 @@ import java.util.regex.Pattern;
 
 public class NavClient {
 	private static final int serverPortNbr = 9876;
-    private static final Pattern dataTFFFsplit = Pattern.compile(	"[+-]([0-9]+),"
-    																+ "[+-]([0-9]*[.])?[0-9]+,"
-    																+ "[+-]([0-9]*[.])?[0-9]+,"
-    																+ "[+-]([0-9]*[.])?[0-9]+,");
     private static final int debugLevel = 4;
 
 	public NavClient() {
@@ -58,7 +54,7 @@ public class NavClient {
 
             // display response
             String received = new String(inPacket.getData(), 0, packet.getLength());
-            if(debugLevel<=5) System.out.println("DEBUG main received: "+received);
+            if(debugLevel>=5) System.out.println("DEBUG main received: "+received);
             msg = msgSplit.matcher(received);
             if (msg.matches())
 	            {
@@ -78,7 +74,20 @@ public class NavClient {
     }
     private static void processAnglesMsg(String s)
     {
-    	Matcher data = dataTFFFsplit.matcher(s);
+    	String[] split = s.split(",");
+    	Long time = Long.parseLong(split[0]);
+    	float yaw = Float.parseFloat(split[1]);
+    	float pitch = Float.parseFloat(split[2]);
+    	float roll = Float.parseFloat(split[3]);
+    	System.out.format("Angles - [%8d] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",time,yaw, pitch,roll);
+
+    	
+    /*	
+       final Pattern dataTFFFsplit = Pattern.compile( "[+-]([0-9]+),"
+													+ "[+-]([0-9]*[.])?[0-9]+,"
+													+ "[+-]([0-9]*[.])?[0-9]+,"
+													+ "[+-]([0-9]*[.])?[0-9]+,");
+    	Matcher data = dataTFFFsplit.matcher(s.trim());
     	if(data.matches())
     	{
 	    	Long time = Long.parseLong(data.group(1));
@@ -88,7 +97,8 @@ public class NavClient {
 	    	System.out.format("Angles - [%8d] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",time,yaw, pitch,roll);
     	} else
     	{
-    		if(debugLevel<=4) System.out.format("DEBUG processAnglesMsg: "+s);
+    		if(debugLevel>=4) System.out.println("DEBUG processAnglesMsg: "+s);
     	}
+    	*/
     }
 }
