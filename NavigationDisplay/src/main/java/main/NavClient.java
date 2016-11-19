@@ -83,10 +83,11 @@ public class NavClient {
 
     	
     /*	
-       final Pattern dataTFFFsplit = Pattern.compile( "[+-]([0-9]+),"
-													+ "[+-]([0-9]*[.])?[0-9]+,"
-													+ "[+-]([0-9]*[.])?[0-9]+,"
-													+ "[+-]([0-9]*[.])?[0-9]+,");
+       final Pattern dataTFFFsplit = Pattern.compile( "([+-]?[0-9]+),"
+													+ "([+-]?[0-9]*[.]?[0-9]+),"
+													+ "([+-]?[0-9]*[.]?[0-9]+),"
+													+ "([+-]?[0-9]*[.]?[0-9]+,)"); //pattern updated after StackOverflow question
+													
     	Matcher data = dataTFFFsplit.matcher(s.trim());
     	if(data.matches())
     	{
