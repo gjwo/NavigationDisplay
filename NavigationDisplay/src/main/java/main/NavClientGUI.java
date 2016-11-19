@@ -7,31 +7,23 @@ import java.awt.Toolkit;
 import java.nio.file.Files;
 import java.io.IOException;
 import java.nio.file.Paths;
-
-
 import javax.swing.UIManager;
 
+import dataTypes.CircularArrayRing;
+import dataTypes.TimestampedData3f;
 import userInterfacePkg.UiFrame;
 
 /**
  * NavClientGUI.java:	Applet
  * 
- * This Applet processes readings from a domestic energy monitor in order to better
- * understand domestic power consumption by turning raw readings into a more understandable form.
- * Ultimately the readings are associated with devices defined by the user so that the behaviour
- * that causes power consumption in the home can be understood and modified if desired.
- * 
- * The intention is to recognise devices and their usage patterns to give a comprehensive understanding
- * with minimal manual intervention. Given the lack of uniqueness of device power signatures, some
- * intervention will almost always be required to work out what is happening
+ * This Applet processes readings from a navigation sensor
  * 
  * @author GJWood
- * @version 1.1 2012/11/29 Incorporating handling of Owl meter
- * @version 1.2 2013/11/19 Incorporating handling of Onzo meter
+ * @version 0.1 2016/11/19 MCU-9150
  */
 public class NavClientGUI
     extends Applet
-    implements Runnable {
+    implements Runnable,UpdateListener {
     /**
 	 * 
 	 */
@@ -39,10 +31,8 @@ public class NavClientGUI
 	public static enum RunState {
 		IDLE, OPEN_FILE, PROCESS_FILE, PROCESS_READINGS, SAVE_FILE, PROCESS_EDGES, PROCESS_EVENTS, STOP
 	};   
-	private static final String PARAM_measurementfile = "measurement file";
 	
     private boolean		packFrame = false;
-    private boolean 	fStandAlone = true;    //	fStandAlone will be set to true if applet is run stand alone
     private	String 		displayString = null;
 	private Thread 		threadNavGui = null; //Thread object for the applet
 	private RunState	state = RunState.IDLE;
@@ -50,122 +40,16 @@ public class NavClientGUI
     // Application Specific data (not persistent)
     private static	NavClientGUI	NavClientMain = null; //This is the root access point for all data in the package, the only static.
     private	UiFrame 			frame = null;
-    private	Files 			file = null;
-//    private Meter				meter = null;
+    private	Files 				file = null;
     
-    //Application Specific data (persistent)
-    
-    // PARAMETER SUPPORT:
-    //Parameters allow an HTML author to pass information to the applet;
-    // the HTML author specifies them using the <PARAM> tag within the <APPLET>
-    // tag.  The following variables are used to store the values of the
-    // parameters.
-    //--------------------------------------------------------------------------
-    // Members for applet parameters
-    // <type>       <MemberVar>    = <Default Value>
-    //--------------------------------------------------------------------------
-    private String readingsFile = "";
+    // variables for storing data from Navigation Client
+    private volatile boolean	dataReady;
+    private volatile CircularArrayRing <TimestampedData3f> navData;
 
     // Parameter names.  To change a name of a parameter, you need only make
     // a single change.  Simply modify the value of the parameter string below.
     //--------------------------------------------------------------------------
     private final String PARAM_readingsfile = "readingsfile";
-
-    // STANDALONE APPLICATION SUPPORT
-    // The GetParameter() method is a replacement for the getParameter() method
-    // defined by Applet. This method returns the value of the specified parameter;
-    // unlike the original getParameter() method, this method works when the applet
-    // is run as a stand alone application, as well as when run within an HTML page.
-    // This method is called by GetParameters().
-    //---------------------------------------------------------------------------
-    String GetParameter(String strName, String args[]) {
-        if (args == null) {
-            // Running within an HTML page, so call original getParameter().
-            //-------------------------------------------------------------------
-            return getParameter(strName);
-        }
-
-        // Running as stand alone application, so parameter values are obtained from
-        // the command line. The user specifies them as follows:
-        //
-        //	JView NavClientGUI param1=<val> param2=<"val with spaces"> ...
-        //-----------------------------------------------------------------------
-        int i;
-        String strArg = strName + "=";
-        String strValue = null;
-        int nLength = strArg.length();
-
-        try {
-            for (i = 0; i < args.length; i++) {
-                String strParam = args[i].substring(0, nLength);
-
-                if (strArg.equalsIgnoreCase(strParam)) {
-                    // Found matching parameter on command line, so extract its value.
-                    // If in double quotes, remove the quotes.
-                    //---------------------------------------------------------------
-                    strValue = args[i].substring(nLength);
-                    if (strValue.startsWith("\"")) {
-                        strValue = strValue.substring(1);
-                        if (strValue.endsWith("\"")) {
-                            strValue = strValue.substring(0,
-                                strValue.length() - 1);
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return strValue;
-    }
-
-    // STANDALONE APPLICATION SUPPORT
-    // 	The GetParameters() method retrieves the values of each of the applet's
-    // parameters and stores them in variables. This method works both when the
-    // applet is run as a standalone application and when it's run within an HTML
-    // page.  When the applet is run as a standalone application, this method is
-    // called by the main() method, which passes it the command-line arguments.
-    // When the applet is run within an HTML page, this method is called by the
-    // init() method with args == null.
-    //---------------------------------------------------------------------------
-    void GetParameters(String args[]) {
-        // Query values of all Parameters
-        //--------------------------------------------------------------
-        String param;
-
-        // measurement file : Parameter description
-        //--------------------------------------------------------------
-        param = GetParameter(PARAM_measurementfile, args);
-         if (param != null) {
-             readingsFile = param;
-             readingsFile = readingsFile+""; //Suppress warning
-           
-        }
-    }
-
-    // STANDALONE APPLICATION SUPPORT
-    // 	The main() method acts as the applet's entry point when it is run
-    // as a standalone application. It is ignored if the applet is run from
-    // within an HTML page.
-    //----------------------------------------------------------------------
-    public static void main(String args[]) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        NavClientGUI applet_SmartPower = new NavClientGUI();
-        NavClientGUI.NavClientMain = applet_SmartPower;
-        //frame.add("Center", applet_SmartPower);
-        applet_SmartPower.fStandAlone = true;
-        applet_SmartPower.GetParameters(args);
-        applet_SmartPower.init();
-        applet_SmartPower.start();
-    }
 
     // NavClientGUI Class Constructor
     //----------------------------------------------------------------------
@@ -199,7 +83,7 @@ public class NavClientGUI
 
         //file = new Files();
         
-        // create persistent objects, data loaded in init()
+        this.navData = new CircularArrayRing <TimestampedData3f>(50);
      }
 
     // APPLET INFO SUPPORT:
@@ -236,18 +120,6 @@ public class NavClientGUI
     // components.
     //--------------------------------------------------------------------------
     public void init() {
-        if (!fStandAlone) {
-            GetParameters(null);
-        }
-        	//set up data
-        //
-        // If you use a ResourceWizard-generated "control creator" class to
-        // arrange controls in your applet, you may want to call its
-        // CreateControls() method from within this method. Remove the following
-        // call to resize() before adding the call to CreateControls();
-        // CreateControls() does its own resizing.
-        //----------------------------------------------------------------------
-        //resize(320, 240);
 
         // Place additional initialisation code here
     }
@@ -387,7 +259,7 @@ public class NavClientGUI
     // Access Methods
     //
 	public static NavClientGUI getMain() {
-		return NavClientGUI.NavClientMain; //needed to access all other dynamic data without specific access methods
+		return NavClientGUI.getNavClientMain(); //needed to access all other dynamic data without specific access methods
 	}
     public synchronized void change_state(RunState new_state) {
     	this.state = new_state;
@@ -410,4 +282,19 @@ public class NavClientGUI
 	}
 	}
 */
+
+	public static NavClientGUI getNavClientMain() {
+		return NavClientMain;
+	}
+
+	public static void setNavClientMain(NavClientGUI navClientMain) {
+		NavClientMain = navClientMain;
+	}
+
+	@Override
+	public void dataUpdated() {this.dataReady = true;}
+	public void addReading(TimestampedData3f reading)
+	{
+		this.navData.add(reading);
+	}
 }
