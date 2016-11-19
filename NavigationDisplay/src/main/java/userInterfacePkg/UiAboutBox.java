@@ -18,10 +18,10 @@ import javax.swing.JPanel;
 /**
  * <p>Title: NavClientGUI</p>
  * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2012,2013</p>
+ * <p>Copyright: Copyright (c) 2016</p>
  * <p>Company: </p>
  * @author G.J.Wood
- * @version 1.0
+ * @version 0.1
  */
 
 public class UiAboutBox
@@ -32,10 +32,10 @@ public class UiAboutBox
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String product = "Smart Power";
-	private static final String version = "1.2";
-	private static final String copyright = "Copyright G.J.Wood (c) 2012,2013";
-	private static final String comments = "Power usage analysis program";
+	private static final String product = "Navigation Client";
+	private static final String version = "0.1";
+	private static final String copyright = "Copyright G.J.Wood (c) 2016";
+	private static final String comments = "Displays navigation data from a sensor on a separate computer";
     
 	JPanel panel1 = new JPanel();
     JPanel panel2 = new JPanel();
