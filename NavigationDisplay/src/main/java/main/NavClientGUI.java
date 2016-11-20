@@ -45,6 +45,7 @@ public class NavClientGUI
     // variables for storing data from Navigation Client
     private volatile boolean	dataReady;
     private volatile CircularArrayRing <TimestampedData3f> navData;
+    private int debugLevel = 0;
 
     // Parameter names.  To change a name of a parameter, you need only make
     // a single change.  Simply modify the value of the parameter string below.
@@ -85,6 +86,9 @@ public class NavClientGUI
         
         this.navData = new CircularArrayRing <TimestampedData3f>(50);
      }
+	public NavClientGUI(int debug) {
+		this.debugLevel = debug;
+	}
 
     // APPLET INFO SUPPORT:
     //		The getAppletInfo() method returns a string describing the applet's
@@ -92,8 +96,7 @@ public class NavClientGUI
     //--------------------------------------------------------------------------
     public String getAppletInfo() {
         return "Name: NavClientGUI\r\n" +
-            "Author: G.J.Wood Copyright 2012,2013\r\n" +
-            "Created with Eclipse Indigo,Juno & Neon";
+            "Author: G.J.Wood Copyright 2016\r\n";
     }
 
     // PARAMETER SUPPORT
@@ -142,11 +145,7 @@ public class NavClientGUI
         g.drawString(displayString, 10, 90);
     }
 
-    //		The start() method is called when the page containing the applet
-    // first appears on the screen. The AppletWizard's initial implementation
-    // of this method starts execution of the applet's thread.
-    //--------------------------------------------------------------------------
-    public void start() {
+     public void start() {
         if (this.threadNavGui == null) {
             this.threadNavGui = new Thread(this,"GUIThread");
             this.threadNavGui.start();
@@ -154,10 +153,6 @@ public class NavClientGUI
         //Place additional applet start code here
     }
 
-    //		The stop() method is called when the page containing the applet is
-    // no longer on the screen. The AppletWizard's initial implementation of
-    // this method stops execution of the applet's thread.
-    //--------------------------------------------------------------------------
     public void stop() {
         if (this.threadNavGui != null) {
             this.change_state(RunState.STOP);
@@ -165,13 +160,6 @@ public class NavClientGUI
         }
     }
 
-    // THREAD SUPPORT
-    //		The run() method is called when the applet's thread is started. If
-    // your applet performs any ongoing activities without waiting for user
-    // input, the code for implementing that behaviour typically goes here. For
-    // example, for an applet that performs animation, the run() method controls
-    // the display of images.
-    //--------------------------------------------------------------------------
     public void run() {
     	int j = 0;
     	//get data
@@ -211,17 +199,6 @@ public class NavClientGUI
                         this.change_state(RunState.IDLE);
                         //System.gc(); // kick off the garbage collector
                         break;
-                    case PROCESS_EDGES:
-                        this.frame.displayLog("Run: Processing edges\n\r");                	
-                    	this.change_state(RunState.IDLE);
-                    	//System.gc(); // kick off the garbage collector
-                    	break;
-                    case PROCESS_EVENTS:
-                        this.frame.displayLog("Run: Processing Events\n\r");
-                        repaint();
-                      	this.change_state(RunState.IDLE);
-                    	//System.gc(); // kick off the garbage collector
-                    	break;
                     case SAVE_FILE: //this state triggered by user selecting save file
                         this.frame.displayLog("\n\rRun: Saving files\n\r");
                         repaint();
@@ -244,12 +221,7 @@ public class NavClientGUI
 
             }
             catch (InterruptedException e) {
-                // Place exception-handling code here in case an
-                //       InterruptedException is thrown by Thread.sleep(),
-                //		 meaning that another thread has interrupted this one
-                //this.frame.displayLog("!");
-                //e.printStackTrace();
-            	//System.out.println(e.toString());
+            	this.stop();
             }
         }
         System.exit(0);
@@ -280,8 +252,7 @@ public class NavClientGUI
 	protected  FileAccess getFile() {
 		return this.file;
 	}
-	}
-*/
+	 */
 
 	public static NavClientGUI getNavClientMain() {
 		return NavClientMain;
@@ -291,6 +262,7 @@ public class NavClientGUI
 		NavClientMain = navClientMain;
 	}
 
+	//Navigation interface methods
 	@Override
 	public void dataUpdated() {this.dataReady = true;}
 	public void addReading(TimestampedData3f reading)

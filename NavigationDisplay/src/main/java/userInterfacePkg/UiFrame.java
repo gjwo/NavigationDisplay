@@ -18,6 +18,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import chartingPkg.DynamicLineAndTimeSeriesChart;
 import main.NavClientGUI;
 
 public class UiFrame
@@ -42,7 +43,7 @@ public class UiFrame
     private JMenuItem jMenuProcessDevices = new JMenuItem("Process Devices");
     
     private JMenu jMenuChart = new JMenu("Chart");
-    //private JMenuItem jMenuChartPie = new JMenuItem("Pie 3D");
+    private JMenuItem jMenuChartLine = new JMenuItem("Line 2D");
     private JMenuItem jMenuChartHistogram = new JMenuItem("Histogram");
     private JMenuItem jMenuChartScatter = new JMenuItem("Scatter");   
 
@@ -147,13 +148,13 @@ public class UiFrame
 
     private void createChartMenu(){
         // add sub items and their actions    
-    	/*
-        jMenuChartPie.addActionListener(new java.awt.event.ActionListener() {
+    	
+        jMenuChartLine.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jMenuChartPie_actionPerformed(e);
+                jMenuChartLine_actionPerformed(e);
             }
         });
-        jMenuChart.add(jMenuChartPie);*/
+        jMenuChart.add(jMenuChartLine);
         jMenuChartHistogram.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jMenuChartHistogram_actionPerformed(e);
@@ -246,12 +247,12 @@ public class UiFrame
     }
 
     //
-    //Chart Pie action performed
+    //Chart Line action performed
     //
-    public void jMenuChartPie_actionPerformed(ActionEvent e) {
-    	//PieChart demo = new PieChart("Comparison", "Which operating system are you using?");
-        //demo.pack();
-        //demo.setVisible(true);
+    public void jMenuChartLine_actionPerformed(ActionEvent e) {
+    	DynamicLineAndTimeSeriesChart demo = new DynamicLineAndTimeSeriesChart("LIne Chart Demo");
+        demo.pack();
+        demo.setVisible(true);
     }
 
     //

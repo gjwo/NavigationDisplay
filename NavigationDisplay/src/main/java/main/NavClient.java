@@ -11,15 +11,17 @@ import dataTypes.TimestampedData3f;
 public class NavClient extends Thread implements Runnable
 {
 	private static final int serverPortNbr = 9876;
-    private static final int debugLevel = 4;
+    private int debugLevel = 4;
     private NavClientGUI navClientGUI;
     private String serverName;
 
-	public NavClient(String serverName, NavClientGUI gui)
+	public NavClient(String serverName, NavClientGUI gui, int debug)
 	{
 		this.navClientGUI = gui;
 		this.serverName = serverName;
 		this.setName("NavClientThread");
+		this.debugLevel = debug;
+		
 	}
     public static void main(String[] args) throws IOException {
     	NavClient navClient;
@@ -36,9 +38,9 @@ public class NavClient extends Thread implements Runnable
             e.printStackTrace();
         }
 
-        ncg = new NavClientGUI();
+        ncg = new NavClientGUI(4);
         NavClientGUI.setNavClientMain(ncg); 
-        navClient = new NavClient(args[0],ncg);
+        navClient = new NavClient(args[0],ncg,4);
         ncg.init();
         ncg.start();
         navClient.start();
@@ -102,6 +104,7 @@ public class NavClient extends Thread implements Runnable
 	        }
 	        System.out.println("Stopping");
 	        socket.close();
+	        this.navClientGUI.stop();
 	    }
 	    catch (Exception e)
 	    {
