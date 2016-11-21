@@ -9,16 +9,17 @@
 	<description>receives navigation data via UDF and displays the results</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<java.source.version>1.8</java.source.version>
+		<java.target.version>1.8</java.target.version>
 		<client.directory>C:\Users\GJWood\navigate</client.directory>
 		<client.main.class>main.NavClient</client.main.class>
 		<user.library.jfreechart>C:\Users\GJWood\workspace\User Library\JFreeChart</user.library.jfreechart>
 		<!-- Maven plugin versions -->
-		<assembly.version>3.0.0</assembly.version>
+		<assembly.version>2.4.1</assembly.version>
 		<complier.version>3.6.0</complier.version>
 		<jar.version>3.0.2</jar.version>
 		<exec.version>1.5.0</exec.version>
+		<eclipse.version>2.9</eclipse.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -38,23 +39,23 @@
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<testOutputDirectory>target/test-classes</testOutputDirectory>
 		<sourceDirectory>src/main/java</sourceDirectory>
-	  	<pluginManagement>
-		    <plugins>
-		      <plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-assembly-plugin</artifactId>
-		        <version>${assembly.version}</version>
-		      </plugin>
-		    </plugins>
- 		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${complier.version}</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${java.source.version}</source>
+					<target>${java.target.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>${eclipse.version}</version>
+				<configuration>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>false</downloadJavadocs>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -64,41 +65,35 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<addClasspath>true</addClasspath>
 							<mainClass>${client.main.class}</mainClass>
 						</manifest>
-						<manifestEntries>
-              				<Class-Path>
-              					.;${user.library.jfreechart}\jcommon-1.0.20;${user.library.jfreechart}\jfreechart-1.0.16
-              				</Class-Path>
-            			</manifestEntries>		
 					</archive>
 				</configuration>
 			</plugin>
 			    <plugin>
-		      	<artifactId>maven-assembly-plugin</artifactId>
 		      	<groupId>org.apache.maven.plugins</groupId>
+		      	<artifactId>maven-assembly-plugin</artifactId>
+		      	<version>assembly.version</version>
+	          	<configuration>
+	            	<descriptorRefs>
+	              		<descriptorRef>jar-with-dependencies</descriptorRef>
+	            	</descriptorRefs>
+	            	<archive>
+	              		<manifest>
+	               			<mainClass>${client.main.class}</mainClass>
+	             		</manifest>
+	            	</archive>
+	        	</configuration>
 		      	<executions>
 		        	<execution>
-		          	<id>make-executable-jar-with-dependencies</id>
-		          	<phase>package</phase>
-		          	<goals>
-		            	<goal>single</goal>
-		          	</goals>
-		          	<configuration>
-		            	<archive>
-		              		<manifest>
-		               			<addClasspath>true</addClasspath>
-		               			<mainClass>${client.main.class}</mainClass>
-		             		</manifest>
-		            	</archive>
-		            	<descriptorRefs>
-		              		<descriptorRef>jar-with-dependencies</descriptorRef>
-		            	</descriptorRefs>
-		        	</configuration>
-		      </execution>
-		    </executions>
-		  </plugin>
+		          		<id>make-assembly</id>
+		          		<phase>package</phase>
+		          		<goals>
+		            		<goal>single</goal>
+		          		</goals>
+		     		</execution>
+		    	</executions>
+		  	</plugin>
 			<plugin>
 			   <groupId>org.codehaus.mojo</groupId>
 		       <artifactId>exec-maven-plugin</artifactId>
