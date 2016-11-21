@@ -87,6 +87,7 @@ public class NavClientGUI
         this.navData = new CircularArrayRing <TimestampedData3f>(50);
      }
 	public NavClientGUI(int debug) {
+		this();
 		this.debugLevel = debug;
 	}
 
