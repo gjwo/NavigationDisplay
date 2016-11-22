@@ -12,10 +12,10 @@
 		<java.source.version>1.8</java.source.version>
 		<java.target.version>1.8</java.target.version>
 		<client.directory>C:\Users\GJWood\navigate</client.directory>
-		<client.main.class>main.NavClient</client.main.class>
+		<client.main.class>org.ladbury.main.NavClient</client.main.class>
 		<user.library.jfreechart>C:\Users\GJWood\workspace\User Library\JFreeChart</user.library.jfreechart>
 		<!-- Maven plugin versions -->
-		<assembly.version>2.4.1</assembly.version>
+		<assembly.version>3.0.0</assembly.version>
 		<complier.version>3.6.0</complier.version>
 		<jar.version>3.0.2</jar.version>
 		<exec.version>1.5.0</exec.version>
@@ -73,7 +73,7 @@
 			    <plugin>
 		      	<groupId>org.apache.maven.plugins</groupId>
 		      	<artifactId>maven-assembly-plugin</artifactId>
-		      	<version>assembly.version</version>
+		      	<version>${assembly.version}</version>
 	          	<configuration>
 	            	<descriptorRefs>
 	              		<descriptorRef>jar-with-dependencies</descriptorRef>
