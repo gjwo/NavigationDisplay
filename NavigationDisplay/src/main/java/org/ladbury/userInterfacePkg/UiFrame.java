@@ -79,7 +79,7 @@ public class UiFrame
         
   
         // initialise the menus
-        //createFileMenu();
+        createFileMenu();
         createChartMenu();
         createHelpMenu();
  
@@ -94,9 +94,9 @@ public class UiFrame
 
         contentPane.add(textArea1, BorderLayout.CENTER);
     }
-/*
-    private void createFileMenu(){
 
+    private void createFileMenu(){
+/*
         // add sub items and their actions 
         jMenuFile.add(jMenuFileOpen);
         jMenuFileOpen.addActionListener(new java.awt.event.ActionListener() {
@@ -110,7 +110,7 @@ public class UiFrame
                 jMenuFileSave_actionPerformed(e);
             }
         });
-        jMenuFile.addSeparator();
+        jMenuFile.addSeparator();*/
         jMenuFile.add(jMenuFileExit);
         jMenuFileExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -120,7 +120,7 @@ public class UiFrame
         // add the menu to the menu bar
         jMenuBar1.add(jMenuFile);
     }
-*/
+
   
 
     private void createChartMenu(){
