@@ -49,28 +49,7 @@
 					<target>${java.target.version}</target>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>${eclipse.version}</version>
-				<configuration>
-					<downloadSources>true</downloadSources>
-					<downloadJavadocs>false</downloadJavadocs>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>${jar.version}</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>${client.main.class}</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			    <plugin>
+		    <plugin>
 		      	<groupId>org.apache.maven.plugins</groupId>
 		      	<artifactId>maven-assembly-plugin</artifactId>
 		      	<version>${assembly.version}</version>
