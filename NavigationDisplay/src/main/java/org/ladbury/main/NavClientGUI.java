@@ -9,9 +9,10 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import javax.swing.UIManager;
 
-import org.ladbury.dataTypes.CircularArrayRing;
-import org.ladbury.dataTypes.TimestampedData3f;
 import org.ladbury.userInterfacePkg.UiFrame;
+
+import dataTypes.CircularArrayRing;
+import dataTypes.TimestampedData3f;
 
 /**
  * NavClientGUI.java:	Applet

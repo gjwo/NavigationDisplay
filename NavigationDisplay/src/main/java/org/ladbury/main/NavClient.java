@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.UIManager;
 
-import org.ladbury.dataTypes.TimestampedData3f;
+import dataTypes.TimestampedData3f;
 
 public class NavClient extends Thread implements Runnable
 {
