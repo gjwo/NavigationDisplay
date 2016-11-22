@@ -12,8 +12,11 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.Second;
@@ -35,14 +38,9 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
 	private static final long serialVersionUID = -3069370784580469812L;
 
 	/** The time series data. */
-    private TimeSeries series;
-
-    /** The most recent value added. */
-    private double lastValue = 100.0;
-
-    /** Timer to refresh graph after every 1/4th of a second */
-    private Timer timer = new Timer(250, this);
-
+	private final TimeSeries series1;
+	private final TimeSeries series2;
+	private final TimeSeries series3;
     /**
      * Constructs a new dynamic chart application.
      *
@@ -51,35 +49,63 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
     public DynamicLineAndTimeSeriesChart(final String title) {
 
         super(title);
-        this.series = new TimeSeries("Random Data");
+        this.series1 = new TimeSeries("Yaw");
+        this.series2 = new TimeSeries("Pitch");
+        this.series3 = new TimeSeries("Roll");
 
-        final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
-        final JFreeChart chart = createChart(dataset);
+        final JFreeChart chart = createChart();
+        
+        chart.setBackgroundPaint(Color.LIGHT_GRAY);						//Sets background colour of chart       
+        final JPanel content = new JPanel(new BorderLayout());			//Created JPanel to show graph on screen
+        final ChartPanel chartPanel = new ChartPanel(chart); 			//Created Chartpanel for chart area
+        content.add(chartPanel);										//Added chartpanel to org.ladbury.main panel
+        chartPanel.setPreferredSize(new java.awt.Dimension(800, 500)); 	//Sets the size of whole window (JPanel)
+        setContentPane(content);         								//Puts the whole content on a Frame
+    }
+    
+    private XYDataset createDataset(final TimeSeries series) {
+        return new TimeSeriesCollection(series);
+    }
+    
+    private void timeSeries1(final XYPlot plot) {
+        final ValueAxis xaxis = plot.getDomainAxis();
+        xaxis.setAutoRange(true);
 
-        //timer.setInitialDelay(1000);
+        // Domain axis would show data of 60 seconds for a time
+        xaxis.setFixedAutoRange(60000.0); // 60 seconds
+        xaxis.setVerticalTickLabels(true);
 
-        //Sets background color of chart
-        chart.setBackgroundPaint(Color.LIGHT_GRAY);
+        final ValueAxis yaxis = plot.getRangeAxis();
+        yaxis.setRange(-200.0, 300.0);
 
-        //Created JPanel to show graph on screen
-        final JPanel content = new JPanel(new BorderLayout());
+        final XYItemRenderer renderer = plot.getRenderer();
+        renderer.setSeriesPaint(0, Color.RED);
 
-        //Created Chartpanel for chart area
-        final ChartPanel chartPanel = new ChartPanel(chart);
-
-        //Added chartpanel to org.ladbury.main panel
-        content.add(chartPanel);
-
-        //Sets the size of whole window (JPanel)
-        chartPanel.setPreferredSize(new java.awt.Dimension(800, 500));
-
-        //Puts the whole content on a Frame
-        setContentPane(content);
-
-        //timer.start();
-
+        final NumberAxis yAxis1 = (NumberAxis) plot.getRangeAxis();
+        yAxis1.setTickLabelPaint(Color.RED);
     }
 
+    private void timeSeries2(final XYPlot plot) {
+        final XYDataset secondDataset = this.createDataset(series2);
+        plot.setDataset(1, secondDataset); // the second dataset (datasets are zero-based numbering)
+        plot.mapDatasetToDomainAxis(1, 0); // same axis, different dataset
+        plot.mapDatasetToRangeAxis(1, 0); // same axis, different dataset
+
+        final XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
+        renderer.setSeriesPaint(0, Color.BLUE);
+        plot.setRenderer(1, renderer);
+    }
+
+    private void timeSeries3(final XYPlot plot) {
+        final XYDataset thirdDataset = this.createDataset(series3);
+        plot.setDataset(2, thirdDataset); // the third dataset (datasets are zero-based numbering)
+        plot.mapDatasetToDomainAxis(2, 0); // same axis, different dataset
+        plot.mapDatasetToRangeAxis(2, 0); // same axis, different dataset
+
+        final XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
+        renderer.setSeriesPaint(0, Color.GREEN);
+        plot.setRenderer(2, renderer);
+    }
     /**
      * Creates a sample chart.
      *
@@ -87,7 +113,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
      *
      * @return A sample chart.
      */
-    private JFreeChart createChart(final XYDataset dataset) {
+    private JFreeChart createChart() {
     	/*
     	 * 	createTimeSeriesChart(java.lang.String title, 
     	 * java.lang.String timeAxisLabel, 
@@ -98,6 +124,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
     	 * boolean urls)
     	 * Creates and returns a time series chart.
     	 */
+    	final XYDataset dataset = this.createDataset(series1);
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
             "Dynamic Line And TimeSeries Chart",
             "Time",
@@ -115,6 +142,10 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         plot.setDomainGridlinePaint(Color.lightGray);
         plot.setRangeGridlinesVisible(true);
         plot.setRangeGridlinePaint(Color.lightGray);
+        
+        this.timeSeries1(plot);
+        this.timeSeries2(plot);
+        this.timeSeries3(plot);
 
         ValueAxis xaxis = plot.getDomainAxis();
         xaxis.setAutoRange(true);
@@ -135,13 +166,6 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
      */
     public void actionPerformed(final ActionEvent e) {
     	// entrypoint from trigger (initially the timer)
-        final double factor = 0.9 + 0.2*Math.random();
-        this.lastValue = this.lastValue * factor;
-        
-        final Millisecond now = new Millisecond(); //based on system time
-        this.series.add(now, this.lastValue);
-
-        System.out.println("Current Time in Milliseconds = " + now.toString()+", Current Value : "+this.lastValue);
     }
     
     public void plotNav(TimestampedData3f reading) {
@@ -153,7 +177,9 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         final Second thisSec = new Second(secs ,thisMin);
         final Millisecond thisMilliSec = new Millisecond((int)milliSecs,thisSec);
         System.out.println("Current Time: " + thisMin.toString() + " Secs:  "+ secs+  " Millis: "+ milliSecs+ " Current Value : "+reading.getX());
-        this.series.add(thisMilliSec, reading.getX());
+        this.series1.add(thisMilliSec, reading.getX());
+        this.series2.add(thisMilliSec, reading.getY());
+        this.series3.add(thisMilliSec, reading.getZ());
     }
 
 }  
