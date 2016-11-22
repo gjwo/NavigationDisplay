@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.Timer;
 import javax.swing.JPanel;
@@ -14,10 +15,14 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.Millisecond;
+import org.jfree.data.time.Minute;
+import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.ApplicationFrame;
+
+import dataTypes.TimestampedData3f;
 
 /**
  * An example to show how we can create a dynamic chart.
@@ -51,7 +56,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
         final JFreeChart chart = createChart(dataset);
 
-        timer.setInitialDelay(1000);
+        //timer.setInitialDelay(1000);
 
         //Sets background color of chart
         chart.setBackgroundPaint(Color.LIGHT_GRAY);
@@ -71,7 +76,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         //Puts the whole content on a Frame
         setContentPane(content);
 
-        timer.start();
+        //timer.start();
 
     }
 
@@ -83,6 +88,16 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
      * @return A sample chart.
      */
     private JFreeChart createChart(final XYDataset dataset) {
+    	/*
+    	 * 	createTimeSeriesChart(java.lang.String title, 
+    	 * java.lang.String timeAxisLabel, 
+    	 * java.lang.String valueAxisLabel, 
+    	 * XYDataset dataset, 
+    	 * boolean legend, 
+    	 * boolean tooltips, 
+    	 * boolean urls)
+    	 * Creates and returns a time series chart.
+    	 */
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
             "Dynamic Line And TimeSeries Chart",
             "Time",
@@ -109,7 +124,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         xaxis.setVerticalTickLabels(true);
 
         ValueAxis yaxis = plot.getRangeAxis();
-        yaxis.setRange(0.0, 300.0);
+        yaxis.setRange(-200.0, 400.0);
 
         return result;
     }
@@ -122,10 +137,23 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
     	// entrypoint from trigger (initially the timer)
         final double factor = 0.9 + 0.2*Math.random();
         this.lastValue = this.lastValue * factor;
-
-        final Millisecond now = new Millisecond();
-        this.series.add(new Millisecond(), this.lastValue);
+        
+        final Millisecond now = new Millisecond(); //based on system time
+        this.series.add(now, this.lastValue);
 
         System.out.println("Current Time in Milliseconds = " + now.toString()+", Current Value : "+this.lastValue);
     }
+    
+    public void plotNav(TimestampedData3f reading) {
+    	// plot a new point
+        final Minute thisMin = new Minute();
+        long milliSecs =  TimeUnit.MILLISECONDS.convert(reading.getTime(), TimeUnit.NANOSECONDS);
+        int secs = (int)TimeUnit.SECONDS.convert(milliSecs, TimeUnit.MILLISECONDS);
+        milliSecs = milliSecs-(1000*secs);
+        final Second thisSec = new Second(secs ,thisMin);
+        final Millisecond thisMilliSec = new Millisecond((int)milliSecs,thisSec);
+        System.out.println("Current Time: " + thisMin.toString() + " Secs:  "+ secs+  " Millis: "+ milliSecs+ " Current Value : "+reading.getX());
+        this.series.add(thisMilliSec, reading.getX());
+    }
+
 }  

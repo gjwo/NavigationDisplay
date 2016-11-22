@@ -4,11 +4,15 @@ import java.applet.Applet;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.nio.file.Files;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.UIManager;
 
+import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
 import org.ladbury.userInterfacePkg.UiFrame;
 
 import dataTypes.CircularArrayRing;
@@ -41,11 +45,14 @@ public class NavClientGUI
     // Application Specific data (not persistent)
     private static	NavClientGUI	NavClientMain = null; //This is the root access point for all data in the package, the only static.
     private	UiFrame 			frame = null;
-    private	Files 				file = null;
+    private DynamicLineAndTimeSeriesChart navGraph;
+    private final  ActionEvent navEvent = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Nav data available");
+
     
     // variables for storing data from Navigation Client
     private volatile boolean	dataReady;
     private volatile CircularArrayRing <TimestampedData3f> navData;
+    private	TimestampedData3f reading;
     private int debugLevel = 0;
 
     // Parameter names.  To change a name of a parameter, you need only make
@@ -173,52 +180,20 @@ public class NavClientGUI
                         j++;
                         if (j == 79){ this.frame.displayLog("\n\r"); j=0;}
                         repaint();
-                        Thread.sleep(5000);
-                        break;
-                    case OPEN_FILE: //this state triggered by the user opening a file
-                        this.frame.displayLog("\n\rRun: Opening file\n\r");
-                        repaint();
-                        //this.file.setInputFilename(this.frame.getFileDialog().getFile());
-                        //this.file.setInputPathname(this.frame.getFileDialog().getDirectory());
-                        //if ( !(this.file.inputFilename() == null | this.file.inputPathname() == null)) {
-                        //    this.file.openInput();
-                            //frame.displayLog("Run: back from open\n");
-                        //    this.change_state(RunState.PROCESS_FILE);
-                        //} else {
-                        	this.change_state(RunState.STOP);
-                        //}
-                        break;
-                    case PROCESS_FILE: 
-                        this.frame.displayLog("Run: Processing file\n\r");
-                        repaint();
-                       	this.change_state(RunState.PROCESS_READINGS);
+                        TimeUnit.SECONDS.sleep(5);
                         break;
                     case PROCESS_READINGS:
-                        this.frame.displayLog("Run: Processing readings\n\r");                	
-                        repaint();
-                        this.frame.displayLog("Run: Completed processing readings\n\r");                	
-                        repaint();
-                        this.change_state(RunState.IDLE);
-                        //System.gc(); // kick off the garbage collector
-                        break;
-                    case SAVE_FILE: //this state triggered by user selecting save file
-                        this.frame.displayLog("\n\rRun: Saving files\n\r");
-                        repaint();
-                        //		this.file.setOutputFilename(this.frame.getFileDialog().getFile());
-                        //		this.file.setOutputPathname(this.frame.getFileDialog().getDirectory());
-                        //		if ( !(this.file.outputFilename() == null | this.file.outputPathname() == null)) {
-                        //			this.file.OutputMetricAsCSVFile(MeterType.ONZO, 
-                        //					getCurrentMeter().getMetric(currentMetricType));
-                        //			this.file.OutputActivityAsCSVFile(	getCurrentMeter().getMetric(currentMetricType).getName(),
-                        //        										getData().getActivity());
-                        //		}
-                         //frame.displayLog("Run: back from open\n");
-                        this.change_state(RunState.IDLE);
-                        //System.gc(); // kick off the garbage collector
+                        if (this.dataReady)
+                        {
+                        	navGraph = frame.getDynamicGraph();
+                        	reading = navData.get(0); //latest value
+                        	navGraph.plotNav(reading);
+                        	dataReady = false;
+                        }
                         break;
                     default:
                         repaint();
-                        Thread.sleep(250);
+                        TimeUnit.MILLISECONDS.sleep(50);
                 }
 
             }

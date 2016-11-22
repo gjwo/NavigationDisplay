@@ -48,7 +48,8 @@ public class UiFrame
 
     private FileDialog fileDialogue = null;
 	private String 	windowTitle = null;
-
+	private DynamicLineAndTimeSeriesChart dynamicGraph;
+	public DynamicLineAndTimeSeriesChart getDynamicGraph(){return dynamicGraph;}
     //
     // Construct the frame
     //
@@ -211,9 +212,9 @@ public class UiFrame
     //Chart Line action performed
     //
     public void jMenuChartLine_actionPerformed(ActionEvent e) {
-    	DynamicLineAndTimeSeriesChart demo = new DynamicLineAndTimeSeriesChart("LIne Chart Demo");
-        demo.pack();
-        demo.setVisible(true);
+    	dynamicGraph = new DynamicLineAndTimeSeriesChart("Navigation Data");
+        dynamicGraph.pack();
+        dynamicGraph.setVisible(true);
         NavClientGUI.getMain().change_state(NavClientGUI.RunState.PROCESS_READINGS);  //trigger processing in org.ladbury.main loop
 
     }
