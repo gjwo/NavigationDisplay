@@ -218,7 +218,7 @@ public class NavClientGUI
                         break;
                     default:
                         repaint();
-                        Thread.sleep(1000);
+                        Thread.sleep(250);
                 }
 
             }

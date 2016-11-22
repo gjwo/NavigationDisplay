@@ -9,8 +9,6 @@ import java.awt.Point;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -38,9 +36,6 @@ public class UiFrame
     private JMenuItem jMenuFileSave = new JMenuItem("Save");
     private JMenuItem jMenuFileExit = new JMenuItem("Exit");
 
-    private JMenu jMenuProcess = new JMenu("Process");
-    private JMenuItem jMenuProcessRecords = new JMenuItem("Process Edges");
-    private JMenuItem jMenuProcessDevices = new JMenuItem("Process Devices");
     
     private JMenu jMenuChart = new JMenu("Chart");
     private JMenuItem jMenuChartLine = new JMenuItem("Line 2D");
@@ -84,7 +79,6 @@ public class UiFrame
   
         // initialise the menus
         createFileMenu();
-        createProcessMenu();
         createChartMenu();
         createHelpMenu();
  
@@ -127,24 +121,6 @@ public class UiFrame
     }
 
   
-    private void createProcessMenu(){
-        // add sub items and their actions      
-        jMenuProcessRecords.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jMenuProcessRecords_actionPerformed(e);
-            }
-        });
-        jMenuProcess.add(jMenuProcessDevices);
-        jMenuProcessDevices.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jMenuProcessDevices_actionPerformed(e);
-            }
-        });
-        jMenuProcess.add(jMenuProcessRecords);
-        jMenuProcess.add(jMenuProcessDevices);
-        // add the menu to the menu bar
-        jMenuBar1.add(jMenuProcess);
-    }
 
     private void createChartMenu(){
         // add sub items and their actions    
@@ -231,21 +207,6 @@ public class UiFrame
     public void jMenuFileExit_actionPerformed(ActionEvent e) {
         NavClientGUI.getMain().stop();
     }
-
-    //
-    //Process Records action performed
-    //
-    public void jMenuProcessRecords_actionPerformed(ActionEvent e) {
-        NavClientGUI.getMain().change_state(NavClientGUI.RunState.PROCESS_EDGES);  //trigger processing in org.ladbury.main loop
-    }
-
-    //
-    //Process Devices action performed
-    //
-    public void jMenuProcessDevices_actionPerformed(ActionEvent e) {
-        NavClientGUI.getMain().change_state(NavClientGUI.RunState.PROCESS_EVENTS);  //trigger processing in org.ladbury.main loop
-    }
-
     //
     //Chart Line action performed
     //
@@ -253,6 +214,8 @@ public class UiFrame
     	DynamicLineAndTimeSeriesChart demo = new DynamicLineAndTimeSeriesChart("LIne Chart Demo");
         demo.pack();
         demo.setVisible(true);
+        NavClientGUI.getMain().change_state(NavClientGUI.RunState.PROCESS_READINGS);  //trigger processing in org.ladbury.main loop
+
     }
 
     //
