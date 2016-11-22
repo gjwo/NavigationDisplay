@@ -18,7 +18,6 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 
 /**
  * An example to show how we can create a dynamic chart.
@@ -47,7 +46,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
     public DynamicLineAndTimeSeriesChart(final String title) {
 
         super(title);
-        this.series = new TimeSeries("Random Data", Millisecond.class);
+        this.series = new TimeSeries("Random Data");
 
         final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
         final JFreeChart chart = createChart(dataset);
@@ -129,21 +128,4 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
 
         System.out.println("Current Time in Milliseconds = " + now.toString()+", Current Value : "+this.lastValue);
     }
-
-    /**
-     * Starting point for the dynamic graph application.
-     *
-     * @param args  ignored.
-     */
-    
-    /* moved to UiFrame jMenuChartLine_actionPerformed
-    public static void org.ladbury.main(final String[] args) {
-
-        final DynamicLineAndTimeSeriesChart demo = new DynamicLineAndTimeSeriesChart("Dynamic Line And TimeSeries Chart");
-        demo.pack();
-        RefineryUtilities.centerFrameOnScreen(demo);
-        demo.setVisible(true);
-	
-    }*/
-
 }  
