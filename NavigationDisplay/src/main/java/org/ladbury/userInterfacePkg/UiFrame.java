@@ -39,8 +39,8 @@ public class UiFrame
     
     private JMenu jMenuChart = new JMenu("Chart");
     private JMenuItem jMenuChartLine = new JMenuItem("Line 2D");
-    private JMenuItem jMenuChartHistogram = new JMenuItem("Histogram");
-    private JMenuItem jMenuChartScatter = new JMenuItem("Scatter");   
+//    private JMenuItem jMenuChartHistogram = new JMenuItem("Histogram");
+//    private JMenuItem jMenuChartScatter = new JMenuItem("Scatter");   
 
     private JMenu jMenuHelp = new JMenu("Help");
     private JMenuItem jMenuHelpAbout = new JMenuItem("About..");
@@ -79,7 +79,7 @@ public class UiFrame
         
   
         // initialise the menus
-        createFileMenu();
+        //createFileMenu();
         createChartMenu();
         createHelpMenu();
  
@@ -94,7 +94,7 @@ public class UiFrame
 
         contentPane.add(textArea1, BorderLayout.CENTER);
     }
-
+/*
     private void createFileMenu(){
 
         // add sub items and their actions 
@@ -120,7 +120,7 @@ public class UiFrame
         // add the menu to the menu bar
         jMenuBar1.add(jMenuFile);
     }
-
+*/
   
 
     private void createChartMenu(){
@@ -132,6 +132,7 @@ public class UiFrame
             }
         });
         jMenuChart.add(jMenuChartLine);
+/*        
         jMenuChartHistogram.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jMenuChartHistogram_actionPerformed(e);
@@ -145,9 +146,9 @@ public class UiFrame
         });
         jMenuChart.add(jMenuChartScatter);
        // add the menu to the menu bar
-        jMenuBar1.add(jMenuChart);
+        jMenuBar1.add(jMenuChart);*/
     }
-    
+   
     private void createHelpMenu(){
         // add sub items and their actions      
         jMenuHelpAbout.addActionListener(new java.awt.event.ActionListener() {
@@ -218,12 +219,12 @@ public class UiFrame
         NavClientGUI.getMain().change_state(NavClientGUI.RunState.PROCESS_READINGS);  //trigger processing in org.ladbury.main loop
 
     }
-
+/*
     //
     //Histogram action performed
     //
     public void jMenuChartHistogram_actionPerformed(ActionEvent e) {
-    	/*
+    	
     	Meter m = NavClientGUI.getMain().getData().getMeters().get(0);  
     	ArrayList<TimeHistogram> histograms = new ArrayList<TimeHistogram>(Collections.<TimeHistogram>emptyList());
     	for (int i = 0; i<m.getMetricCount(); i++ ){
@@ -237,9 +238,9 @@ public class UiFrame
 			//RefineryUtilities.centerFrameOnScreen(histograms.get(i));
 			histograms.get(i).setVisible(true);	
 		}
-		*/
+		
     }
-    
+*/    
       public void displayLog(String str) {
         textArea1.append(str);
         repaint();
