@@ -25,12 +25,15 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.ApplicationFrame;
 
+import dataTypes.CircularArrayRing;
 import dataTypes.TimestampedData3f;
+import sensors.interfaces.UpdateListener;
 
 /**
  * An example to show how we can create a dynamic chart.
 */
-public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements ActionListener {
+public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements ActionListener, UpdateListener 
+{
 
     /**
 	 * 
@@ -41,6 +44,9 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
 	private final TimeSeries series1;
 	private final TimeSeries series2;
 	private final TimeSeries series3;
+    private volatile CircularArrayRing <TimestampedData3f> navData;
+    private volatile boolean	dataReady;
+
     /**
      * Constructs a new dynamic chart application.
      *
@@ -61,7 +67,16 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         content.add(chartPanel);										//Added chartpanel to org.ladbury.main panel
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 500)); 	//Sets the size of whole window (JPanel)
         setContentPane(content);         								//Puts the whole content on a Frame
+        
+        this.navData = new CircularArrayRing <> (100); //set up the buffer for data
     }
+	//Navigation interface methods
+	@Override
+	public void dataUpdated() {this.dataReady = true;}
+	public void addReading(TimestampedData3f reading)
+	{
+		this.navData.add(reading);
+	}
     
     private XYDataset createDataset(final TimeSeries series) {
         return new TimeSeriesCollection(series);
@@ -124,9 +139,9 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
     	 */
     	final XYDataset dataset = this.createDataset(series1);
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
-            "Dynamic Line And TimeSeries Chart",
+            "Navigation Data",
             "Time",
-            "Value",
+            "Angle (degrees)",
             dataset,
             true,
             true,
@@ -153,7 +168,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
      * @param e  the action event.
      */
     public void actionPerformed(final ActionEvent e) {
-    	// entrypoint from trigger (initially the timer)
+    	plotNav( this.navData.get(0));
     }
     
     public void plotNav(TimestampedData3f reading) {

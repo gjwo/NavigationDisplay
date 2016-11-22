@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.UIManager;
 
+import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
 import org.ladbury.main.NavClientGUI.RunState;
 
 import dataTypes.TimestampedData3f;
@@ -16,19 +17,22 @@ public class NavClient extends Thread implements Runnable
 	private static final int serverPortNbr = 9876;
     private int debugLevel = 4;
     private NavClientGUI navClientGUI;
+    private DynamicLineAndTimeSeriesChart dynamicGraph;
     private String serverName;
 
-	public NavClient(String serverName, NavClientGUI gui, int debug)
+	public NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg,int debug)
 	{
-		this.navClientGUI = gui;
+		//this.navClientGUI = gui;
 		this.serverName = serverName;
 		this.setName("NavClientThread");
 		this.debugLevel = debug;
+		this.dynamicGraph = dg;
 		
 	}
     public static void main(String[] args) throws IOException {
     	NavClient navClient;
-        NavClientGUI ncg;
+        NavClientGUI ncg = null;
+        DynamicLineAndTimeSeriesChart dc;
    	    	 
         if (args.length != 1) {
              System.out.println("Usage: java NavClient <hostname>");
@@ -41,12 +45,15 @@ public class NavClient extends Thread implements Runnable
             e.printStackTrace();
         }
 
-        ncg = new NavClientGUI(4);
-        NavClientGUI.setNavClientMain(ncg); 
-        navClient = new NavClient(args[0],ncg,4);
-        ncg.init();
-        ncg.start();
+        //ncg = new NavClientGUI(4);
+        dc = new DynamicLineAndTimeSeriesChart("Navigation Data");
+        //NavClientGUI.setNavClientMain(ncg); 
+        navClient = new NavClient(args[0],ncg,dc,4);
+        //ncg.init();
+        //ncg.start();
         navClient.start();
+        
+        
      }
     
 	@Override
@@ -54,6 +61,10 @@ public class NavClient extends Thread implements Runnable
 	    try
 	    {
 	        DatagramSocket socket = new DatagramSocket();
+	    	//dynamicGraph = new DynamicLineAndTimeSeriesChart("Navigation Data");
+	        dynamicGraph.pack();
+	        dynamicGraph.setVisible(true);
+
 	 
 	            // send request
 	        byte[] buf = new byte[256];
@@ -107,7 +118,7 @@ public class NavClient extends Thread implements Runnable
 	        }
 	        System.out.println("Stopping receiving data");
 	        socket.close();
-	        this.navClientGUI.change_state(RunState.IDLE);
+	        //this.navClientGUI.change_state(RunState.IDLE);
 	    }
 	    catch (Exception e)
 	    {
@@ -125,8 +136,10 @@ public class NavClient extends Thread implements Runnable
     	long milliSeconds = TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS);
     	if(debugLevel>=4) System.out.format("Angles - [%8d ms] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",milliSeconds,yaw, pitch,roll);
     	TimestampedData3f data = new TimestampedData3f(yaw,pitch,roll,time);
-    	this.navClientGUI.addReading(data);
-    	this.navClientGUI.dataUpdated();
+    	this.dynamicGraph.addReading(data);
+    	this.dynamicGraph.actionPerformed(null);
+    	//this.navClientGUI.addReading(data);
+    	//this.navClientGUI.dataUpdated();
 
     	
     /*	
