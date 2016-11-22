@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.Timer;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -17,6 +16,7 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.general.SeriesException;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.Second;
@@ -72,11 +72,11 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         xaxis.setAutoRange(true);
 
         // Domain axis would show data of 60 seconds for a time
-        xaxis.setFixedAutoRange(60000.0); // 60 seconds
+        xaxis.setFixedAutoRange(10000.0); // 60 seconds
         xaxis.setVerticalTickLabels(true);
 
         final ValueAxis yaxis = plot.getRangeAxis();
-        yaxis.setRange(-200.0, 300.0);
+        yaxis.setRange(-190.0, 370.0);
 
         final XYItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesPaint(0, Color.RED);
@@ -107,9 +107,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         plot.setRenderer(2, renderer);
     }
     /**
-     * Creates a sample chart.
-     *
-     * @param dataset  the dataset.
+     * Creates a chart with 3 series
      *
      * @return A sample chart.
      */
@@ -147,16 +145,6 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         this.timeSeries2(plot);
         this.timeSeries3(plot);
 
-        ValueAxis xaxis = plot.getDomainAxis();
-        xaxis.setAutoRange(true);
-
-        //Domain axis would show data of 60 seconds for a time
-        xaxis.setFixedAutoRange(60000.0);  // 60 seconds
-        xaxis.setVerticalTickLabels(true);
-
-        ValueAxis yaxis = plot.getRangeAxis();
-        yaxis.setRange(-200.0, 400.0);
-
         return result;
     }
     /**
@@ -177,9 +165,14 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         final Second thisSec = new Second(secs ,thisMin);
         final Millisecond thisMilliSec = new Millisecond((int)milliSecs,thisSec);
         System.out.println("Current Time: " + thisMin.toString() + " Secs:  "+ secs+  " Millis: "+ milliSecs+ " Current Value : "+reading.getX());
-        this.series1.add(thisMilliSec, reading.getX());
-        this.series2.add(thisMilliSec, reading.getY());
-        this.series3.add(thisMilliSec, reading.getZ());
+        try
+        {
+        	this.series1.add(thisMilliSec, reading.getX());
+        	this.series2.add(thisMilliSec, reading.getY());
+        	this.series3.add(thisMilliSec, reading.getZ());
+        } catch(SeriesException e)
+        { //tried to a reading with the same millisecond value
+        	System.out.println("Dropped reading");
+        }  
     }
-
 }  

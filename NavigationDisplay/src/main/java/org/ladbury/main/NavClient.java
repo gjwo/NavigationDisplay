@@ -1,10 +1,13 @@
 package org.ladbury.main;
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.UIManager;
+
+import org.ladbury.main.NavClientGUI.RunState;
 
 import dataTypes.TimestampedData3f;
 
@@ -102,9 +105,9 @@ public class NavClient extends Thread implements Runnable
 		            }
 	            }
 	        }
-	        System.out.println("Stopping");
+	        System.out.println("Stopping receiving data");
 	        socket.close();
-	        this.navClientGUI.stop();
+	        this.navClientGUI.change_state(RunState.IDLE);
 	    }
 	    catch (Exception e)
 	    {
@@ -119,7 +122,8 @@ public class NavClient extends Thread implements Runnable
     	float yaw = Float.parseFloat(split[1]);
     	float pitch = Float.parseFloat(split[2]);
     	float roll = Float.parseFloat(split[3]);
-    	if(debugLevel>=4) System.out.format("Angles - [%8d] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",time,yaw, pitch,roll);
+    	long milliSeconds = TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS);
+    	if(debugLevel>=4) System.out.format("Angles - [%8d ms] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",milliSeconds,yaw, pitch,roll);
     	TimestampedData3f data = new TimestampedData3f(yaw,pitch,roll,time);
     	this.navClientGUI.addReading(data);
     	this.navClientGUI.dataUpdated();

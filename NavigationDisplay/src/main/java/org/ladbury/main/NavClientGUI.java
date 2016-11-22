@@ -5,12 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.nio.file.Files;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.UIManager;
 
 import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
 import org.ladbury.userInterfacePkg.UiFrame;
@@ -156,7 +152,7 @@ public class NavClientGUI
 
      public void start() {
         if (this.threadNavGui == null) {
-            this.threadNavGui = new Thread(this,"GUIThread");
+            this.threadNavGui = new Thread(this,"NavClientGUIThread");
             this.threadNavGui.start();
         }
         //Place additional applet start code here
@@ -170,17 +166,21 @@ public class NavClientGUI
     }
 
     public void run() {
-    	int j = 0;
+    	int j = 0, i = 0;
+    	int delayms = 20;
     	//get data
         while (this.get_state() != RunState.STOP) {
             try {
                 switch (this.get_state()) {
                     case IDLE:
-                        this.frame.displayLog(".");
-                        j++;
-                        if (j == 79){ this.frame.displayLog("\n\r"); j=0;}
-                        repaint();
-                        TimeUnit.SECONDS.sleep(5);
+                    	if ((this.debugLevel >=3) && i>=(1000/delayms) ) //only display if debug is on at intervals 1 second
+                    	{
+	                        this.frame.displayLog(".");
+	                        i=0;
+	                        j++;
+	                        if (j == 79){ this.frame.displayLog("\n\r"); j=0;}
+	                        repaint();
+                    	}
                         break;
                     case PROCESS_READINGS:
                         if (this.dataReady)
@@ -193,9 +193,9 @@ public class NavClientGUI
                         break;
                     default:
                         repaint();
-                        TimeUnit.MILLISECONDS.sleep(50);
+                        i++;
+                        TimeUnit.MILLISECONDS.sleep(delayms);                   
                 }
-
             }
             catch (InterruptedException e) {
             	this.stop();
