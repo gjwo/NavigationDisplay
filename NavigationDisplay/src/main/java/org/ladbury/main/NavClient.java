@@ -7,7 +7,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.UIManager;
 
+import org.jfree.ui.RefineryUtilities;
 import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
+import org.ladbury.chartingPkg.InstrumentCompass;
 import org.ladbury.main.NavClientGUI.RunState;
 
 import dataTypes.TimestampedData3f;
@@ -17,22 +19,25 @@ public class NavClient extends Thread implements Runnable
 	private static final int serverPortNbr = 9876;
     private int debugLevel = 4;
     private NavClientGUI navClientGUI;
+    private InstrumentCompass compass;
     private DynamicLineAndTimeSeriesChart dynamicGraph;
     private String serverName;
 
-	public NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg,int debug)
+	public NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg,InstrumentCompass comp,int debug)
 	{
 		//this.navClientGUI = gui;
 		this.serverName = serverName;
 		this.setName("NavClientThread");
 		this.debugLevel = debug;
 		this.dynamicGraph = dg;
+		this.compass = comp;
 		
 	}
     public static void main(String[] args) throws IOException {
     	NavClient navClient;
         NavClientGUI ncg = null;
         DynamicLineAndTimeSeriesChart dc;
+        InstrumentCompass comp;
    	    	 
         if (args.length != 1) {
              System.out.println("Usage: java NavClient <hostname>");
@@ -47,8 +52,9 @@ public class NavClient extends Thread implements Runnable
 
         //ncg = new NavClientGUI(4);
         dc = new DynamicLineAndTimeSeriesChart("Navigation Data");
+        comp = new InstrumentCompass("Compass");
         //NavClientGUI.setNavClientMain(ncg); 
-        navClient = new NavClient(args[0],ncg,dc,4);
+        navClient = new NavClient(args[0],ncg,dc,comp,4);
         //ncg.init();
         //ncg.start();
         navClient.start();
@@ -64,7 +70,9 @@ public class NavClient extends Thread implements Runnable
 	    	//dynamicGraph = new DynamicLineAndTimeSeriesChart("Navigation Data");
 	        dynamicGraph.pack();
 	        dynamicGraph.setVisible(true);
-
+	        compass.pack();
+	        RefineryUtilities.centerFrameOnScreen(compass);
+	        compass.setVisible(true);
 	 
 	            // send request
 	        byte[] buf = new byte[256];
@@ -138,6 +146,7 @@ public class NavClient extends Thread implements Runnable
     	TimestampedData3f data = new TimestampedData3f(yaw,pitch,roll,time);
     	this.dynamicGraph.addReading(data);
     	this.dynamicGraph.actionPerformed(null);
+    	this.compass.setHeading(yaw);
     	//this.navClientGUI.addReading(data);
     	//this.navClientGUI.dataUpdated();
 
