@@ -88,7 +88,7 @@ public class InstrumentCompass extends ApplicationFrame {
         chart = createChart(dataset);	//Create the chart
         
         chartPanel = new ChartPanel(chart);// add the chart to a panel...
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        chartPanel.setPreferredSize(new java.awt.Dimension(300, 270));
         chartPanel.setEnforceFileExtensions(false);
         
         setContentPane(chartPanel); //add the panel to the ApplicationFrame
