@@ -46,6 +46,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
 	private final TimeSeries series3;
     private volatile CircularArrayRing <TimestampedData3f> navData;
     private volatile boolean	dataReady;
+    private Millisecond lastMilliSec;
 
     /**
      * Constructs a new dynamic chart application.
@@ -69,10 +70,16 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         setContentPane(content);         								//Puts the whole content on a Frame
         
         this.navData = new CircularArrayRing <> (100); //set up the buffer for data
+        this.lastMilliSec = new Millisecond();
     }
 	//Navigation interface methods
 	@Override
 	public void dataUpdated() {this.dataReady = true;}
+
+	/**
+	 * addReading	-	Add a new reading to the circular array
+	 * @param reading
+	 */
 	public void addReading(TimestampedData3f reading)
 	{
 		this.navData.add(reading);
@@ -163,12 +170,12 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         return result;
     }
     /**
-     * Generates an random entry for a particular call made by time for every 1/4th of a second.
+     * actionPerformed	-	prompt that some data is ready
      *
      * @param e  the action event.
      */
     public void actionPerformed(final ActionEvent e) {
-    	plotNav( this.navData.get(0));
+    	plotNav( this.navData.get(0)); //get the last reading from the circular array
     }
     
     public void plotNav(TimestampedData3f reading) {
@@ -179,15 +186,13 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         milliSecs = milliSecs-(1000*secs);
         final Second thisSec = new Second(secs ,thisMin);
         final Millisecond thisMilliSec = new Millisecond((int)milliSecs,thisSec);
-        System.out.println("Current Time: " + thisMin.toString() + " Secs:  "+ secs+  " Millis: "+ milliSecs+ " Current Value : "+reading.getX());
-        try
+        //System.out.println("Current Time: " + thisMin.toString() + " Secs:  "+ secs+  " Millis: "+ milliSecs+ " Current Value : "+reading.getX());
+        if (thisMilliSec.compareTo(this.lastMilliSec) != 0) //don't add a reading if it is the same millisecond as the last one
         {
+        	this.lastMilliSec = thisMilliSec;
         	this.series1.add(thisMilliSec, reading.getX());
         	this.series2.add(thisMilliSec, reading.getY());
         	this.series3.add(thisMilliSec, reading.getZ());
-        } catch(SeriesException e)
-        { //tried to a reading with the same millisecond value
-        	System.out.println("Dropped reading");
-        }  
+        }
     }
 }  
