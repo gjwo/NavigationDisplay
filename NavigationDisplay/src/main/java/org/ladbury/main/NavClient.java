@@ -1,6 +1,8 @@
 package org.ladbury.main;
+import com.sun.j3d.utils.applet.MainFrame;
 import dataTypes.TimestampedData3f;
 import org.jfree.ui.RefineryUtilities;
+import org.ladbury.chartingPkg.CubeFrame;
 import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
 import org.ladbury.chartingPkg.InstrumentCompass;
 
@@ -22,6 +24,7 @@ public class NavClient extends Thread implements Runnable
     private final InstrumentCompass compass;
     private final DynamicLineAndTimeSeriesChart dynamicGraph;
     private final String serverName;
+    private final CubeFrame cube;
 
 	private NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg, InstrumentCompass comp, int debug)
 	{
@@ -31,9 +34,12 @@ public class NavClient extends Thread implements Runnable
 		this.debugLevel = debug;
 		this.dynamicGraph = dg;
 		this.compass = comp;
+		this.cube = new CubeFrame();
+		new MainFrame(cube, 256, 256);
 		
 	}
     public static void main(String[] args) throws IOException {
+
     	NavClient navClient;
         NavClientGUI ncg = null;
         DynamicLineAndTimeSeriesChart dc;
@@ -54,7 +60,7 @@ public class NavClient extends Thread implements Runnable
         dc = new DynamicLineAndTimeSeriesChart("Navigation Data");
         comp = new InstrumentCompass("Compass");
         //NavClientGUI.setNavClientMain(ncg); 
-        navClient = new NavClient(args[0],ncg,dc,comp,5);
+        navClient = new NavClient(args[0],ncg,dc,comp,1);
         //ncg.init();
         //ncg.start();
         navClient.start();
@@ -143,10 +149,11 @@ public class NavClient extends Thread implements Runnable
     	float roll = Float.parseFloat(split[3]);
     	long milliSeconds = TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS);
     	if(debugLevel>=4) System.out.format("Angles - [%8d ms] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",milliSeconds,yaw, pitch,roll);
-    	TimestampedData3f data = new TimestampedData3f(yaw,pitch,roll,time);
+    	TimestampedData3f data = new TimestampedData3f(yaw,2*pitch,roll,time);
     	this.dynamicGraph.addReading(data);
     	//this.dynamicGraph.actionPerformed(null);
     	this.compass.setHeading(yaw);
+    	this.cube.myRotationBehavior.setAngles(data);
     	//this.navClientGUI.addReading(data);
     	//this.navClientGUI.dataUpdated();
 
