@@ -22,14 +22,12 @@ import dataTypes.TimestampedData3f;
  * @author GJWood
  * @version 0.1 2016/11/19 MCU-9150
  */
-public class NavClientGUI
-    extends Applet
-    implements Runnable,UpdateListener {
+public class NavClientGUI extends Applet implements Runnable,UpdateListener {
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static enum RunState {
+	public enum RunState {
 		IDLE, OPEN_FILE, PROCESS_FILE, PROCESS_READINGS, SAVE_FILE, PROCESS_EDGES, PROCESS_EVENTS, STOP
 	};   
 	

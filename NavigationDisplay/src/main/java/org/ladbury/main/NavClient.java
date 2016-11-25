@@ -23,7 +23,7 @@ public class NavClient extends Thread implements Runnable
     private DynamicLineAndTimeSeriesChart dynamicGraph;
     private String serverName;
 
-	public NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg,InstrumentCompass comp,int debug)
+	NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg,InstrumentCompass comp,int debug)
 	{
 		//this.navClientGUI = gui;
 		this.serverName = serverName;
