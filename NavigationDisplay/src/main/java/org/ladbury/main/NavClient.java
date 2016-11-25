@@ -54,7 +54,7 @@ public class NavClient extends Thread implements Runnable
         dc = new DynamicLineAndTimeSeriesChart("Navigation Data");
         comp = new InstrumentCompass("Compass");
         //NavClientGUI.setNavClientMain(ncg); 
-        navClient = new NavClient(args[0],ncg,dc,comp,4);
+        navClient = new NavClient(args[0],ncg,dc,comp,5);
         //ncg.init();
         //ncg.start();
         navClient.start();
@@ -94,11 +94,12 @@ public class NavClient extends Thread implements Runnable
 	                socket.receive(inPacket);
 	    			
 	    		}catch (SocketTimeoutException e) {
-	    		       	// resend
-	    				reply = false;
-	    				socket.send(packet);
+					if(debugLevel>=5) System.out.println("DEBUG org.ladbury.main attempting to register");
+	    			reply = false;
+	    			socket.send(packet);
 	    		}
 	    	}
+			if(debugLevel>=5) System.out.println("DEBUG org.ladbury.main registered");
 	    	//we lose the first response
 	    	socket.setSoTimeout(0); //clear timeout
 	        while (!stop)
@@ -126,7 +127,6 @@ public class NavClient extends Thread implements Runnable
 	        }
 	        System.out.println("Stopping receiving data");
 	        socket.close();
-	        //this.navClientGUI.change_state(RunState.IDLE);
 	    }
 	    catch (Exception e)
 	    {

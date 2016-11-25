@@ -29,9 +29,9 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
 	private static final long serialVersionUID = -3069370784580469812L;
 
 	/** The time series data. */
-	private final TimeSeries series1;
-	private final TimeSeries series2;
-	private final TimeSeries series3;
+	private final TimeSeries yawSeries;
+	private final TimeSeries pitchSeries;
+	private final TimeSeries rollSeries;
     //private volatile CircularArrayRing <TimestampedData3f> navData;
     //private volatile boolean dataReady;
     private Millisecond lastMilliSec;
@@ -44,9 +44,9 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
     public DynamicLineAndTimeSeriesChart(final String title) {
 
         super(title);
-        this.series1 = new TimeSeries("Yaw");
-        this.series2 = new TimeSeries("Pitch");
-        this.series3 = new TimeSeries("Roll");
+        this.yawSeries = new TimeSeries("Yaw");
+        this.pitchSeries = new TimeSeries("Pitch");
+        this.rollSeries = new TimeSeries("Roll");
 
         final JFreeChart chart = createChart();
         
@@ -77,8 +77,10 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
     private XYDataset createDataset(final TimeSeries series) {
         return new TimeSeriesCollection(series);
     }
-    
-    private void timeSeries1(final XYPlot plot) {
+
+
+    private void setupAxis(XYPlot plot)
+    {
         final ValueAxis xAxis = plot.getDomainAxis();
         xAxis.setAutoRange(true);
 
@@ -96,8 +98,19 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
         yAxis1.setTickLabelPaint(Color.RED);
     }
 
+    private void timeSeries1(final XYPlot plot) {
+        final XYDataset firstDataset = this.createDataset(yawSeries);
+        plot.setDataset(0, firstDataset); // the second dataset (datasets are zero-based numbering)
+        plot.mapDatasetToDomainAxis(0, 0); // same axis, different dataset
+        plot.mapDatasetToRangeAxis(0, 0); // same axis, different dataset
+
+        final XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
+        renderer.setSeriesPaint(0, Color.RED);
+        plot.setRenderer(0, renderer);
+    }
+
     private void timeSeries2(final XYPlot plot) {
-        final XYDataset secondDataset = this.createDataset(series2);
+        final XYDataset secondDataset = this.createDataset(pitchSeries);
         plot.setDataset(1, secondDataset); // the second dataset (datasets are zero-based numbering)
         plot.mapDatasetToDomainAxis(1, 0); // same axis, different dataset
         plot.mapDatasetToRangeAxis(1, 0); // same axis, different dataset
@@ -108,7 +121,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
     }
 
     private void timeSeries3(final XYPlot plot) {
-        final XYDataset thirdDataset = this.createDataset(series3);
+        final XYDataset thirdDataset = this.createDataset(rollSeries);
         plot.setDataset(2, thirdDataset); // the third dataset (datasets are zero-based numbering)
         plot.mapDatasetToDomainAxis(2, 0); // same axis, different dataset
         plot.mapDatasetToRangeAxis(2, 0); // same axis, different dataset
@@ -133,7 +146,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
     	 * boolean urls)
     	 * Creates and returns a time series chart.
     	 */
-    	final XYDataset dataset = this.createDataset(series1);
+    	final XYDataset dataset = this.createDataset(yawSeries);
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
             "Navigation Data",
             "Time",
@@ -151,13 +164,16 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
         plot.setDomainGridlinePaint(Color.lightGray);
         plot.setRangeGridlinesVisible(true);
         plot.setRangeGridlinePaint(Color.lightGray);
-        
+
+        this.setupAxis(plot);
+
         this.timeSeries1(plot);
         this.timeSeries2(plot);
         this.timeSeries3(plot);
 
         return result;
     }
+
     /**
      * actionPerformed	-	prompt that some data is ready
      *
@@ -177,12 +193,9 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
         final Second thisSec = new Second(secs ,thisMin);
         final Millisecond thisMilliSec = new Millisecond((int)milliSecs,thisSec);
         //System.out.println("Current Time: " + thisMin.toString() + " Secs:  "+ secs+  " Millis: "+ milliSecs+ " Current Value : "+reading.getX());
-        if (thisMilliSec.compareTo(this.lastMilliSec) != 0) //don't add a reading if it is the same millisecond as the last one
-        {
-        	this.lastMilliSec = thisMilliSec;
-        	this.series1.add(thisMilliSec, reading.getX());
-        	this.series2.add(thisMilliSec, reading.getY());
-        	this.series3.add(thisMilliSec, reading.getZ());
-        }
+        this.lastMilliSec = thisMilliSec;
+        this.yawSeries.addOrUpdate(thisMilliSec, reading.getX());
+        this.pitchSeries.addOrUpdate(thisMilliSec, reading.getY());
+        this.rollSeries.addOrUpdate(thisMilliSec, reading.getZ());
     }
 }  
