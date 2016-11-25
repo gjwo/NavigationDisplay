@@ -1,29 +1,29 @@
 package org.ladbury.main;
-import java.io.*;
-import java.net.*;
+import dataTypes.TimestampedData3f;
+import org.jfree.ui.RefineryUtilities;
+import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
+import org.ladbury.chartingPkg.InstrumentCompass;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.UIManager;
-
-import org.jfree.ui.RefineryUtilities;
-import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
-import org.ladbury.chartingPkg.InstrumentCompass;
-import org.ladbury.main.NavClientGUI.RunState;
-
-import dataTypes.TimestampedData3f;
-
 public class NavClient extends Thread implements Runnable
 {
 	private static final int serverPortNbr = 9876;
-    private int debugLevel = 4;
+    private int debugLevel;
     private NavClientGUI navClientGUI;
-    private InstrumentCompass compass;
-    private DynamicLineAndTimeSeriesChart dynamicGraph;
-    private String serverName;
+    private final InstrumentCompass compass;
+    private final DynamicLineAndTimeSeriesChart dynamicGraph;
+    private final String serverName;
 
-	NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg,InstrumentCompass comp,int debug)
+	private NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg, InstrumentCompass comp, int debug)
 	{
 		//this.navClientGUI = gui;
 		this.serverName = serverName;
@@ -134,7 +134,7 @@ public class NavClient extends Thread implements Runnable
 	    }
 	}
 
-    private  void processAnglesMsg(String s)
+    private void processAnglesMsg(String s)
     {
     	String[] split = s.split(",");
     	Long time = Long.parseLong(split[0]);
@@ -145,12 +145,11 @@ public class NavClient extends Thread implements Runnable
     	if(debugLevel>=4) System.out.format("Angles - [%8d ms] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",milliSeconds,yaw, pitch,roll);
     	TimestampedData3f data = new TimestampedData3f(yaw,pitch,roll,time);
     	this.dynamicGraph.addReading(data);
-    	this.dynamicGraph.actionPerformed(null);
+    	//this.dynamicGraph.actionPerformed(null);
     	this.compass.setHeading(yaw);
     	//this.navClientGUI.addReading(data);
     	//this.navClientGUI.dataUpdated();
 
-    	
     /*	
        final Pattern dataTFFFsplit = Pattern.compile( "([+-]?[0-9]+),"
 													+ "([+-]?[0-9]*[.]?[0-9]+),"

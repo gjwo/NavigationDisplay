@@ -1,13 +1,6 @@
 package org.ladbury.chartingPkg;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.JPanel;
-
+import dataTypes.TimestampedData3f;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -16,23 +9,18 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.general.SeriesException;
-import org.jfree.data.time.Millisecond;
-import org.jfree.data.time.Minute;
-import org.jfree.data.time.Second;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.*;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.ApplicationFrame;
 
-import dataTypes.CircularArrayRing;
-import dataTypes.TimestampedData3f;
-import sensors.interfaces.UpdateListener;
+import javax.swing.*;
+import java.awt.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An example to show how we can create a dynamic chart.
 */
-public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements ActionListener, UpdateListener 
+public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements ActionListener, UpdateListener
 {
 
     /**
@@ -44,8 +32,8 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
 	private final TimeSeries series1;
 	private final TimeSeries series2;
 	private final TimeSeries series3;
-    private volatile CircularArrayRing <TimestampedData3f> navData;
-    private volatile boolean	dataReady;
+    //private volatile CircularArrayRing <TimestampedData3f> navData;
+    //private volatile boolean dataReady;
     private Millisecond lastMilliSec;
 
     /**
@@ -64,25 +52,26 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
         
         chart.setBackgroundPaint(Color.LIGHT_GRAY);						//Sets background colour of chart       
         final JPanel content = new JPanel(new BorderLayout());			//Created JPanel to show graph on screen
-        final ChartPanel chartPanel = new ChartPanel(chart); 			//Created Chartpanel for chart area
-        content.add(chartPanel);										//Added chartpanel to org.ladbury.main panel
+        final ChartPanel chartPanel = new ChartPanel(chart); 			//Created a ChartPanel for chart area
+        content.add(chartPanel);										//Added chartPanel to org.ladbury.main panel
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 500)); 	//Sets the size of whole window (JPanel)
         setContentPane(content);         								//Puts the whole content on a Frame
         
-        this.navData = new CircularArrayRing <> (100); //set up the buffer for data
+        //this.navData = new CircularArrayRing<>(60000); //set up the buffer for data
         this.lastMilliSec = new Millisecond();
     }
 	//Navigation interface methods
-	@Override
-	public void dataUpdated() {this.dataReady = true;}
+	//@Override
+	//public void dataUpdated() {this.dataReady = true;}
 
 	/**
 	 * addReading	-	Add a new reading to the circular array
-	 * @param reading
+	 * @param reading new data to be plotted
 	 */
 	public void addReading(TimestampedData3f reading)
 	{
-		this.navData.add(reading);
+        plotNav(reading);
+		//this.navData.add(reading);
 	}
     
     private XYDataset createDataset(final TimeSeries series) {
@@ -90,15 +79,15 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
     }
     
     private void timeSeries1(final XYPlot plot) {
-        final ValueAxis xaxis = plot.getDomainAxis();
-        xaxis.setAutoRange(true);
+        final ValueAxis xAxis = plot.getDomainAxis();
+        xAxis.setAutoRange(true);
 
         // Domain axis would show data of 60 seconds for a time
-        xaxis.setFixedAutoRange(10000.0); // 60 seconds
-        xaxis.setVerticalTickLabels(true);
+        xAxis.setFixedAutoRange(10000.0); // 60 seconds
+        xAxis.setVerticalTickLabels(true);
 
-        final ValueAxis yaxis = plot.getRangeAxis();
-        yaxis.setRange(-190.0, 370.0);
+        final ValueAxis yAxis = plot.getRangeAxis();
+        yAxis.setRange(-190.0, 370.0);
 
         final XYItemRenderer renderer = plot.getRenderer();
         renderer.setSeriesPaint(0, Color.RED);
@@ -174,10 +163,11 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame implements A
      *
      * @param e  the action event.
      */
-    public void actionPerformed(final ActionEvent e) {
+   /* public void actionPerformed(final ActionEvent e) {
     	plotNav( this.navData.get(0)); //get the last reading from the circular array
-    }
+    }*/
     
+    @SuppressWarnings("JavadocReference")
     public void plotNav(TimestampedData3f reading) {
     	// plot a new point
         final Minute thisMin = new Minute();
