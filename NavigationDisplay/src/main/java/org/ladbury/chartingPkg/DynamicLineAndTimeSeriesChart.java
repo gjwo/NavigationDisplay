@@ -15,12 +15,12 @@ import org.jfree.ui.ApplicationFrame;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.TimeUnit;
+import java.util.Date;
 
 /**
  * An example to show how we can create a dynamic chart.
 */
-public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements ActionListener, UpdateListener
+public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
 {
 
     /**
@@ -32,9 +32,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
 	private final TimeSeries yawSeries;
 	private final TimeSeries pitchSeries;
 	private final TimeSeries rollSeries;
-    //private volatile CircularArrayRing <TimestampedData3f> navData;
-    //private volatile boolean dataReady;
-    private Millisecond lastMilliSec;
+	private long startTime;
 
     /**
      * Constructs a new dynamic chart application.
@@ -56,13 +54,8 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
         content.add(chartPanel);										//Added chartPanel to org.ladbury.main panel
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 500)); 	//Sets the size of whole window (JPanel)
         setContentPane(content);         								//Puts the whole content on a Frame
-        
-        //this.navData = new CircularArrayRing<>(60000); //set up the buffer for data
-        this.lastMilliSec = new Millisecond();
+        startTime = System.currentTimeMillis();
     }
-	//Navigation interface methods
-	//@Override
-	//public void dataUpdated() {this.dataReady = true;}
 
 	/**
 	 * addReading	-	Add a new reading to the circular array
@@ -71,7 +64,6 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
 	public void addReading(TimestampedData3f reading)
 	{
         plotNav(reading);
-		//this.navData.add(reading);
 	}
     
     private XYDataset createDataset(final TimeSeries series) {
@@ -165,11 +157,11 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
         plot.setRangeGridlinesVisible(true);
         plot.setRangeGridlinePaint(Color.lightGray);
 
-        this.setupAxis(plot);
+        setupAxis(plot);
 
-        this.timeSeries1(plot);
-        this.timeSeries2(plot);
-        this.timeSeries3(plot);
+        timeSeries1(plot);
+        timeSeries2(plot);
+        timeSeries3(plot);
 
         return result;
     }
@@ -185,15 +177,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame// implements
     
     @SuppressWarnings("JavadocReference")
     public void plotNav(TimestampedData3f reading) {
-    	// plot a new point
-        final Minute thisMin = new Minute();
-        long milliSecs =  TimeUnit.MILLISECONDS.convert(reading.getTime(), TimeUnit.NANOSECONDS);
-        int secs = (int)TimeUnit.SECONDS.convert(milliSecs, TimeUnit.MILLISECONDS);
-        milliSecs = milliSecs-(1000*secs);
-        final Second thisSec = new Second(secs ,thisMin);
-        final Millisecond thisMilliSec = new Millisecond((int)milliSecs,thisSec);
-        //System.out.println("Current Time: " + thisMin.toString() + " Secs:  "+ secs+  " Millis: "+ milliSecs+ " Current Value : "+reading.getX());
-        this.lastMilliSec = thisMilliSec;
+        final Millisecond thisMilliSec = new Millisecond(new Date(startTime + reading.getTime()/1000000L));
         this.yawSeries.addOrUpdate(thisMilliSec, reading.getX());
         this.pitchSeries.addOrUpdate(thisMilliSec, reading.getY());
         this.rollSeries.addOrUpdate(thisMilliSec, reading.getZ());
