@@ -23,6 +23,7 @@ import java.net.SocketTimeoutException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,6 +104,7 @@ public class NavClient extends Thread implements Runnable
 	        		System.exit(5);
 	        	}
 	        // request streamed data
+	        System.out.print("Requesting stream" );
 	        Message reqMsg = new Message();
 	        reqMsg.setMsgType(MessageType.STREAM_REQ);
 	        reqMsg.setParameterType(ParameterType.TAIT_BRYAN);
@@ -149,7 +151,7 @@ public class NavClient extends Thread implements Runnable
     		reply = true;
     		try
     		{
-                socket.receive(inPacket);
+    			socket.receive(inPacket);
     			
     		}catch (SocketTimeoutException  e) {
 				if(debugLevel>=5) System.out.println("DEBUG main attempting to register");
@@ -164,8 +166,17 @@ public class NavClient extends Thread implements Runnable
 	
     private boolean handleMessage(DatagramPacket packet)
     {
+    	int receivedBytes = 0;
+		receivedBytes = packet.getLength(); //actual length of data
+		byte[] trimmedData = new byte[receivedBytes];
+		for(int i = 0; i < receivedBytes; i++)
+		{
+			trimmedData[i] = packet.getData()[i];
+		}
+    	System.out.println("Handle Message: "+receivedBytes+" " +Arrays.toString(trimmedData));
     	Message respMsg = Message.deSerializeMsg(packet.getData());
     	ErrorMsgType error = respMsg.getErrorMsgType();
+    	System.out.println(respMsg.toString());
         boolean success = true;
         switch (respMsg.getMsgType())
         {
@@ -191,7 +202,7 @@ public class NavClient extends Thread implements Runnable
             }
         	else
         	{
-        		System.err.println("Client registeristration failed, error: "+ error.name());
+        		System.err.println("Client registration failed, error: "+ error.name());
         		success = false;
         	}
          	break;
