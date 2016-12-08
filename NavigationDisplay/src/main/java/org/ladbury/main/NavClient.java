@@ -1,6 +1,13 @@
 package org.ladbury.main;
 import com.sun.j3d.utils.applet.MainFrame;
 import dataTypes.TimestampedData3f;
+import inertialNavigation.Client;
+import messages.Message;
+import messages.Message.CommandType;
+import messages.Message.ErrorMsgType;
+import messages.Message.MessageType;
+import messages.Message.ParameterType;
+
 import org.jfree.ui.RefineryUtilities;
 import org.ladbury.chartingPkg.CubeFrame;
 import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
@@ -11,7 +18,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +36,7 @@ public class NavClient extends Thread implements Runnable
     private final DynamicLineAndTimeSeriesChart dynamicGraph;
     private final String serverName;
     private final CubeFrame cube;
+    private boolean stop;
 
 	private NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg, InstrumentCompass comp, int debug)
 	{
@@ -35,6 +47,7 @@ public class NavClient extends Thread implements Runnable
 		this.dynamicGraph = dg;
 		this.compass = comp;
 		this.cube = new CubeFrame();
+		this.stop = false;
 		new MainFrame(cube, 256, 256);
 		
 	}
@@ -79,56 +92,32 @@ public class NavClient extends Thread implements Runnable
 	        compass.pack();
 	        RefineryUtilities.centerFrameOnScreen(compass);
 	        compass.setVisible(true);
-	 
-	            // send request
-	        byte[] buf = new byte[256];
+	        
 	        InetAddress address = InetAddress.getByName(serverName);
-	        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, serverPortNbr);
-	        socket.send(packet); //register interest with server
-	        boolean stop = false;
-	        Pattern msgSplit = Pattern.compile("(^.*?),(.*$)");
-	        Matcher msg;
-	        String msgType;
+	        byte[] buf = new byte[256];
 	    	DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
-	    	socket.setSoTimeout(500); //1/2 second timeout
-	    	boolean reply = false;
-	    	while(!reply) //keep trying to register until we get a response
-	    	{
-	    		reply = true;
-	    		try
-	    		{
-	                socket.receive(inPacket);
-	    			
-	    		}catch (SocketTimeoutException e) {
-					if(debugLevel>=5) System.out.println("DEBUG main attempting to register");
-	    			reply = false;
-	    			socket.send(packet);
-	    		}
-	    	}
-			if(debugLevel>=5) System.out.println("DEBUG main registered");
-	    	//we lose the first response
-	    	socket.setSoTimeout(0); //clear timeout
+
+	        if (!registerWithServer(socket, address))
+	        	{
+	        		System.err.println("Failed to register with Server");
+	        		System.exit(5);
+	        	}
+	        // request streamed data
+	        Message reqMsg = new Message();
+	        reqMsg.setMsgType(MessageType.STREAM_REQ);
+	        reqMsg.setParameterType(ParameterType.TAIT_BRYAN);
+	    	byte[] ba = reqMsg.serializeMsg();
+	        DatagramPacket packet = new DatagramPacket(ba, ba.length, address, serverPortNbr);
+			socket.send(packet);       
 	        while (!stop)
 	        {
 	            // get response
 	        	inPacket = new DatagramPacket(buf, buf.length);
 	            socket.receive(inPacket); //now wait for reply
-	
-	            // display response
-	            String received = new String(inPacket.getData(), 0, packet.getLength());
-	            if(debugLevel>=5) System.out.println("DEBUG main received: "+received);
-	            msg = msgSplit.matcher(received);
-	            if (msg.matches())
-		            {
-		            msgType = msg.group(1);
-		            switch (msgType)
-		            {
-		            case "STOP": 	stop = true;
-		            				break;
-		            case "Angles":	processAnglesMsg(msg.group(2));
-		            				break;
-		            default:		System.out.println("msg: " + received);
-		            }
+	            if (!handleMessage(inPacket))
+	            {
+	            	System.err.println("Bad Message, stopping");
+	            	stop = true;
 	            }
 	        }
 	        System.out.println("Stopping receiving data");
@@ -139,6 +128,147 @@ public class NavClient extends Thread implements Runnable
 	    	e.printStackTrace();
 	    }
 	}
+	private boolean registerWithServer(DatagramSocket socket,InetAddress address) throws IOException
+	{
+        Message reqMsg = new Message();
+        reqMsg.setMsgType(MessageType.CLIENT_REG_REQ);
+    	byte[] ba = reqMsg.serializeMsg();
+        DatagramPacket packet = new DatagramPacket(ba, ba.length, address, serverPortNbr);
+		socket.send(packet);
+               
+        byte[] buf = new byte[256];
+    	DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
+    	try {
+			socket.setSoTimeout(500);
+		} catch (SocketException e1) {
+			e1.printStackTrace();
+		} //1/2 second timeout
+    	boolean reply = false;
+    	while(!reply) //keep trying to register until we get a response
+    	{
+    		reply = true;
+    		try
+    		{
+                socket.receive(inPacket);
+    			
+    		}catch (SocketTimeoutException  e) {
+				if(debugLevel>=5) System.out.println("DEBUG main attempting to register");
+    			reply = false;
+    			socket.send(packet);
+    		}
+    	}
+		if(debugLevel>=5) System.out.println("DEBUG main registered");
+    	socket.setSoTimeout(0); //clear timeout
+    	return handleMessage(inPacket);
+	}
+	
+    private boolean handleMessage(DatagramPacket packet)
+    {
+    	Message respMsg = Message.deSerializeMsg(packet.getData());
+    	ErrorMsgType error = respMsg.getErrorMsgType();
+        boolean success = true;
+        switch (respMsg.getMsgType())
+        {
+        case PING_RESP: 
+        	if (error == ErrorMsgType.SUCCESS)
+        	{
+        		Instant time = respMsg.getTime();
+        		LocalDateTime ldt = LocalDateTime.ofInstant(time, ZoneId.systemDefault());
+        		System.out.println("Ping Response at : "+ ldt.toString());
+        	}
+        	else 
+        	{
+        		System.err.println("Ping Response failed, error: "+ error.name());
+        		success = false;
+        	}
+         	break;
+        case CLIENT_REG_RESP: 
+            if (error == ErrorMsgType.SUCCESS)	
+            { 	//register client and start thread
+        		Instant time = respMsg.getTime();
+        		LocalDateTime ldt = LocalDateTime.ofInstant(time, ZoneId.systemDefault());
+        		System.out.println("Client registered at : "+ ldt.toString());
+            }
+        	else
+        	{
+        		System.err.println("Client registeristration failed, error: "+ error.name());
+        		success = false;
+        	}
+         	break;
+        case GET_PARAM_RESP: 
+        	if (error == ErrorMsgType.SUCCESS)
+        	{
+        		System.out.println("Get parameter Response: "+respMsg.getParameterType().toString()+ 
+        				" value: "+ respMsg.getNavAngles().toString()); //other cases of param
+        	}
+        	else
+        	{
+        		System.err.println("Get Parameter failed, error: "+ error.name());
+        		success = false;
+        	}
+       	break;
+        case SET_PARAM_RESP:
+        	if (error == ErrorMsgType.SUCCESS)
+        	{
+        		System.out.println("Set parameter Response: "+respMsg.getParameterType().toString()+ 
+        				" value: "+ respMsg.getNavAngles().toString()); //other cases of param
+        	}
+        	else
+        	{
+        		System.err.println("Set Parameter failed, error: "+ error.name());
+        		success = false;
+        	}
+        	break;
+        case STREAM_RESP:
+        	if (error == ErrorMsgType.SUCCESS)
+        	{
+        		if (respMsg.getParameterType()== ParameterType.TAIT_BRYAN)
+        		{
+        			processTaitBryanAngles(respMsg.getNavAngles());
+        		}
+        		else
+        		{
+            		System.err.println("Get stream Response unexpected: "+respMsg.getParameterType().toString()+ 
+            				" value: "+ respMsg.getNavAngles().toString()); //other cases of param
+            		success = false;
+        		}
+
+        	}
+        	else
+        		{
+        			System.err.println("Stream Request failed, error: "+ error.name());
+        			success = false;
+        		}
+        	break;
+        case CONTROL_REQ: 
+        	if (respMsg.getCommandType() == CommandType.STOP)
+        	{
+        		System.out.println("Stop received from server");
+        		stop = true;
+        	}
+        	else 
+        		{
+        		System.err.println("Unexpected command: "+ respMsg.getCommandType().toString()); 
+        		success = false;
+        		}
+			break;
+        case CONTROL_RESP: 
+        	if (error == ErrorMsgType.SUCCESS)
+        	{
+        		System.out.println("control Response: "+respMsg.getParameterType().toString()+ 
+        				" value: "+ respMsg.getCommandType().toString()); 
+        	}
+        	else 
+        		{
+        		System.err.println("Set Parameter failed, error: "+ error.name()); 
+        		success = false;
+        		}
+			break;
+        case MSG_ERROR:
+		default:	success = false;
+        }
+        return success;
+    }
 
     private void processAnglesMsg(String s)
     {
@@ -150,31 +280,12 @@ public class NavClient extends Thread implements Runnable
     	long milliSeconds = TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS);
     	if(debugLevel>=4) System.out.format("Angles - [%8d ms] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",milliSeconds,yaw, pitch,roll);
     	TimestampedData3f data = new TimestampedData3f(yaw,pitch,roll,time);
+    	processTaitBryanAngles(data);
+     }
+    private void processTaitBryanAngles(TimestampedData3f data)
+    {
     	this.dynamicGraph.addReading(data);
-    	//this.dynamicGraph.actionPerformed(null);
-    	this.compass.setHeading(yaw);
+    	this.compass.setHeading(data.getX());
     	this.cube.myRotationBehavior.setAngles(data);
-    	//this.navClientGUI.addReading(data);
-    	//this.navClientGUI.dataUpdated();
-
-    /*	
-       final Pattern dataTFFFsplit = Pattern.compile( "([+-]?[0-9]+),"
-													+ "([+-]?[0-9]*[.]?[0-9]+),"
-													+ "([+-]?[0-9]*[.]?[0-9]+),"
-													+ "([+-]?[0-9]*[.]?[0-9]+,)"); //pattern updated after StackOverflow question
-													
-    	Matcher data = dataTFFFsplit.matcher(s.trim());
-    	if(data.matches())
-    	{
-	    	Long time = Long.parseLong(data.group(1));
-	    	float yaw = Float.parseFloat(data.group(2));
-	    	float pitch = Float.parseFloat(data.group(3));
-	    	float roll = Float.parseFloat(data.group(4));
-	    	System.out.format("Angles - [%8d] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",time,yaw, pitch,roll);
-    	} else
-    	{
-    		if(debugLevel>=4) System.out.println("DEBUG processAnglesMsg: "+s);
-    	}
-    	*/
     }
 }
