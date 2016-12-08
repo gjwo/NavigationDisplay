@@ -174,7 +174,7 @@ public class NavClient extends Thread implements Runnable
 			trimmedData[i] = packet.getData()[i];
 		}
     	System.out.println("Handle Message: "+receivedBytes+" " +Arrays.toString(trimmedData));
-    	Message respMsg = Message.deSerializeMsg(packet.getData());
+    	Message respMsg = Message.deSerializeMsg(trimmedData);
     	ErrorMsgType error = respMsg.getErrorMsgType();
     	System.out.println(respMsg.toString());
         boolean success = true;
