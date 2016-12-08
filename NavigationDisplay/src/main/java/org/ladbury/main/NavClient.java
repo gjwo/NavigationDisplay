@@ -100,12 +100,12 @@ public class NavClient extends Thread implements Runnable
 	                socket.receive(inPacket);
 	    			
 	    		}catch (SocketTimeoutException e) {
-					if(debugLevel>=5) System.out.println("DEBUG org.ladbury.main attempting to register");
+					if(debugLevel>=5) System.out.println("DEBUG main attempting to register");
 	    			reply = false;
 	    			socket.send(packet);
 	    		}
 	    	}
-			if(debugLevel>=5) System.out.println("DEBUG org.ladbury.main registered");
+			if(debugLevel>=5) System.out.println("DEBUG main registered");
 	    	//we lose the first response
 	    	socket.setSoTimeout(0); //clear timeout
 	        while (!stop)
@@ -116,7 +116,7 @@ public class NavClient extends Thread implements Runnable
 	
 	            // display response
 	            String received = new String(inPacket.getData(), 0, packet.getLength());
-	            if(debugLevel>=5) System.out.println("DEBUG org.ladbury.main received: "+received);
+	            if(debugLevel>=5) System.out.println("DEBUG main received: "+received);
 	            msg = msgSplit.matcher(received);
 	            if (msg.matches())
 		            {
@@ -149,7 +149,7 @@ public class NavClient extends Thread implements Runnable
     	float roll = Float.parseFloat(split[3]);
     	long milliSeconds = TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS);
     	if(debugLevel>=4) System.out.format("Angles - [%8d ms] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",milliSeconds,yaw, pitch,roll);
-    	TimestampedData3f data = new TimestampedData3f(yaw,2*pitch,roll,time);
+    	TimestampedData3f data = new TimestampedData3f(yaw,pitch,roll,time);
     	this.dynamicGraph.addReading(data);
     	//this.dynamicGraph.actionPerformed(null);
     	this.compass.setHeading(yaw);
