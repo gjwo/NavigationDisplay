@@ -136,30 +136,29 @@ public class NavClient extends Thread implements Runnable
         reqMsg.setMsgType(MessageType.CLIENT_REG_REQ);
     	byte[] ba = reqMsg.serializeMsg();
         DatagramPacket packet = new DatagramPacket(ba, ba.length, address, serverPortNbr);
-		socket.send(packet);
                
         byte[] buf = new byte[256];
     	DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
     	try {
-			socket.setSoTimeout(500);
+			socket.setSoTimeout(1000); //milliseconds
 		} catch (SocketException e1) {
 			e1.printStackTrace();
 		} //1/2 second timeout
     	boolean reply = false;
     	while(!reply) //keep trying to register until we get a response
     	{
-    		reply = true;
+    		socket.send(packet); // send or resend on timeout
     		try
     		{
     			socket.receive(inPacket);
-    			
+        		reply = true;   			
     		}catch (SocketTimeoutException  e) {
 				if(debugLevel>=5) System.out.println("DEBUG main attempting to register");
     			reply = false;
-    			socket.send(packet);
     		}
     	}
-		if(debugLevel>=5) System.out.println("DEBUG main registered");
+    	//got a reply
+		if(debugLevel>=5) System.out.println("DEBUG main registered"); 
     	socket.setSoTimeout(0); //clear timeout
     	return handleMessage(inPacket);
 	}
@@ -173,8 +172,14 @@ public class NavClient extends Thread implements Runnable
 		{
 			trimmedData[i] = packet.getData()[i];
 		}
-    	System.out.println("Handle Message: "+receivedBytes+" " +Arrays.toString(trimmedData));
+    	System.out.println("Handle Data: "+receivedBytes+" " +Arrays.toString(trimmedData));
     	Message respMsg = Message.deSerializeMsg(trimmedData);
+    	if(respMsg == null)
+    	{
+    		System.out.println("null message recieved");
+    		System.exit(5);
+    	}
+    	System.out.println("Received msg: "+ respMsg.toString());
     	ErrorMsgType error = respMsg.getErrorMsgType();
     	System.out.println(respMsg.toString());
         boolean success = true;
