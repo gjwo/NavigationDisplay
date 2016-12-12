@@ -38,6 +38,7 @@ public class NavClient extends Thread implements Runnable
     private final String serverName;
     private final CubeFrame cube;
     private boolean stop;
+    private final int BUFFER_SIZE = 1024;
 
 	private NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg, InstrumentCompass comp, int debug)
 	{
@@ -95,7 +96,7 @@ public class NavClient extends Thread implements Runnable
 	        compass.setVisible(true);
 	        
 	        InetAddress address = InetAddress.getByName(serverName);
-	        byte[] buf = new byte[256];
+	        byte[] buf = new byte[BUFFER_SIZE];
 	    	DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
 
 	        if (!registerWithServer(socket, address))
@@ -137,7 +138,7 @@ public class NavClient extends Thread implements Runnable
     	byte[] ba = reqMsg.serializeMsg();
         DatagramPacket packet = new DatagramPacket(ba, ba.length, address, serverPortNbr);
                
-        byte[] buf = new byte[256];
+        byte[] buf = new byte[BUFFER_SIZE];
     	DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
     	try {
 			socket.setSoTimeout(1000); //milliseconds
