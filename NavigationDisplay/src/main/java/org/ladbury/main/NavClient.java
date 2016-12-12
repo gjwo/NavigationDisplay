@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 public class NavClient extends Thread implements Runnable
 {
 	private static final int serverPortNbr = 9876;
+	private InetAddress serverAddress = null;
     private int debugLevel;
     private NavClientGUI navClientGUI;
     private final InstrumentCompass compass;
@@ -39,6 +40,7 @@ public class NavClient extends Thread implements Runnable
     private final CubeFrame cube;
     private boolean stop;
     private final int BUFFER_SIZE = 1024;
+    private DatagramSocket socket = null;
 
 	private NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg, InstrumentCompass comp, int debug)
 	{
@@ -87,36 +89,29 @@ public class NavClient extends Thread implements Runnable
 	public void run() {
 	    try
 	    {
-	        DatagramSocket socket = new DatagramSocket();
+	        socket = new DatagramSocket();
 	    	//dynamicGraph = new DynamicLineAndTimeSeriesChart("Navigation Data");
 	        dynamicGraph.pack();
 	        dynamicGraph.setVisible(true);
 	        compass.pack();
 	        RefineryUtilities.centerFrameOnScreen(compass);
-	        compass.setVisible(true);
-	        
-	        InetAddress address = InetAddress.getByName(serverName);
+	        compass.setVisible(true);	        
+	        serverAddress = InetAddress.getByName(serverName);	        
 	        byte[] buf = new byte[BUFFER_SIZE];
 	    	DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
 
-	        if (!registerWithServer(socket, address))
+	        if (!registerWithServer())
 	        	{
 	        		System.err.println("Failed to register with Server");
 	        		System.exit(5);
 	        	}
-	        // request streamed data
-	        System.out.print("Requesting stream" );
-	        Message reqMsg = new Message();
-	        reqMsg.setMsgType(MessageType.STREAM_REQ);
-	        reqMsg.setParameterType(ParameterType.TAIT_BRYAN);
-	    	byte[] ba = reqMsg.serializeMsg();
-	        DatagramPacket packet = new DatagramPacket(ba, ba.length, address, serverPortNbr);
-			socket.send(packet);       
+	        
+	        requestStreamedData(ParameterType.TAIT_BRYAN);
+			
 	        while (!stop)
 	        {
-	            // get response
-	        	inPacket = new DatagramPacket(buf, buf.length);
-	            socket.receive(inPacket); //now wait for reply
+	            // get and handle responses
+	        	socket.receive(inPacket);
 	            if (!handleMessage(inPacket))
 	            {
 	            	System.err.println("Bad Message, stopping");
@@ -131,41 +126,74 @@ public class NavClient extends Thread implements Runnable
 	    	e.printStackTrace();
 	    }
 	}
-	private boolean registerWithServer(DatagramSocket socket,InetAddress address) throws IOException
+
+	private boolean registerWithServer() throws IOException
 	{
+		if(debugLevel>=5) System.out.println("registerWithServer");
+		//build registration request
         Message reqMsg = new Message();
         reqMsg.setMsgType(MessageType.CLIENT_REG_REQ);
+        reqMsg.setErrorMsgType(ErrorMsgType.SUCCESS);
+        reqMsg.setCommandType(CommandType.EXECUTE);
+        
+        // serialise and add to packet
     	byte[] ba = reqMsg.serializeMsg();
-        DatagramPacket packet = new DatagramPacket(ba, ba.length, address, serverPortNbr);
-               
+        DatagramPacket packet = new DatagramPacket(ba, ba.length, serverAddress, serverPortNbr);
+        
+        // prepare holder for response
         byte[] buf = new byte[BUFFER_SIZE];
     	DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
     	try {
+    		// server may not be handling requests yet & message may be lost so set a timeout
 			socket.setSoTimeout(1000); //milliseconds
 		} catch (SocketException e1) {
 			e1.printStackTrace();
-		} //1/2 second timeout
+		} 
     	boolean reply = false;
+    	
     	while(!reply) //keep trying to register until we get a response
     	{
     		socket.send(packet); // send or resend on timeout
     		try
     		{
     			socket.receive(inPacket);
-        		reply = true;   			
+        		reply = true; // prepare to exit loop
     		}catch (SocketTimeoutException  e) {
 				if(debugLevel>=5) System.out.println("DEBUG main attempting to register");
-    			reply = false;
+    			reply = false; // try again, resend message
     		}
     	}
     	//got a reply
-		if(debugLevel>=5) System.out.println("DEBUG main registered"); 
     	socket.setSoTimeout(0); //clear timeout
+		if(debugLevel>=5) System.out.println("End registerWithServer");
     	return handleMessage(inPacket);
+	}
+	private void requestStreamedData(ParameterType p)
+	{
+        System.out.println("Requesting stream: " + p.name());
+        Message reqMsg = new Message();
+        reqMsg.setMsgType(MessageType.STREAM_REQ);
+        reqMsg.setParameterType(p);
+        reqMsg.setErrorMsgType(ErrorMsgType.SUCCESS);
+        reqMsg.setCommandType(CommandType.EXECUTE);
+        sendMessage(reqMsg);
+	}
+	
+	private void sendMessage(Message msg)
+	{
+    	byte[] ba = msg.serializeMsg();
+        DatagramPacket packet = new DatagramPacket(ba, ba.length, serverAddress, serverPortNbr);
+		try {
+			socket.send(packet);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+
 	}
 	
     private boolean handleMessage(DatagramPacket packet)
     {
+		if(debugLevel>=5) System.out.println("handleMessage");
     	int receivedBytes = 0;
 		receivedBytes = packet.getLength(); //actual length of data
 		byte[] trimmedData = new byte[receivedBytes];
@@ -177,7 +205,7 @@ public class NavClient extends Thread implements Runnable
     	Message respMsg = Message.deSerializeMsg(trimmedData);
     	if(respMsg == null)
     	{
-    		System.out.println("null message recieved");
+    		System.out.println("null message received");
     		System.exit(5);
     	}
     	System.out.println("Received msg: "+ respMsg.toString());
@@ -239,7 +267,7 @@ public class NavClient extends Thread implements Runnable
         case STREAM_RESP:
         	if (error == ErrorMsgType.SUCCESS)
         	{
-        		if (respMsg.getParameterType()== ParameterType.TAIT_BRYAN)
+        		if (respMsg.getParameterType() == ParameterType.TAIT_BRYAN)
         		{
         			processTaitBryanAngles(respMsg.getNavAngles());
         		}
@@ -284,6 +312,7 @@ public class NavClient extends Thread implements Runnable
         case MSG_ERROR:
 		default:	success = false;
         }
+		if(debugLevel>=5) System.out.println("End handleMessage "+ success );
         return success;
     }
 
