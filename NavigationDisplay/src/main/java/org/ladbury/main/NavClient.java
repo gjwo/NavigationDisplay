@@ -25,8 +25,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class NavClient extends Thread implements Runnable
 {
@@ -41,6 +39,8 @@ public class NavClient extends Thread implements Runnable
     private boolean stop;
     private final int BUFFER_SIZE = 1024;
     private DatagramSocket socket = null;
+    private long msgsIn;
+    private long msgsOut;
 
 	private NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg, InstrumentCompass comp, int debug)
 	{
@@ -52,6 +52,8 @@ public class NavClient extends Thread implements Runnable
 		this.compass = comp;
 		this.cube = new CubeFrame();
 		this.stop = false;
+		this.msgsIn = 0;
+		this.msgsOut = 0;
 		new MainFrame(cube, 256, 256);
 		
 	}
@@ -112,6 +114,7 @@ public class NavClient extends Thread implements Runnable
 	        {
 	            // get and handle responses
 	        	socket.receive(inPacket);
+	        	msgsIn++;
 	            if (!handleMessage(inPacket))
 	            {
 	            	System.err.println("Bad Message, stopping");
@@ -154,9 +157,11 @@ public class NavClient extends Thread implements Runnable
     	while(!reply) //keep trying to register until we get a response
     	{
     		socket.send(packet); // send or resend on timeout
+			this.msgsOut++;
     		try
     		{
     			socket.receive(inPacket);
+    			this.msgsIn++;
         		reply = true; // prepare to exit loop
     		}catch (SocketTimeoutException  e) {
 				if(debugLevel>=5) System.out.println("DEBUG main attempting to register");
@@ -185,6 +190,7 @@ public class NavClient extends Thread implements Runnable
         DatagramPacket packet = new DatagramPacket(ba, ba.length, serverAddress, serverPortNbr);
 		try {
 			socket.send(packet);
+			this.msgsOut++;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
@@ -201,16 +207,15 @@ public class NavClient extends Thread implements Runnable
 		{
 			trimmedData[i] = packet.getData()[i];
 		}
-    	System.out.println("Handle Data: "+receivedBytes+" " +Arrays.toString(trimmedData));
+    	//System.out.println("Handle Data: "+receivedBytes+" " +Arrays.toString(trimmedData));
     	Message respMsg = Message.deSerializeMsg(trimmedData);
     	if(respMsg == null)
     	{
     		System.out.println("null message received");
     		System.exit(5);
     	}
-    	System.out.println("Received msg: "+ respMsg.toString());
+    	if (msgsIn <=7) System.out.println("Received msg ("+receivedBytes+"bytes): "+ respMsg.toString());
     	ErrorMsgType error = respMsg.getErrorMsgType();
-    	System.out.println(respMsg.toString());
         boolean success = true;
         switch (respMsg.getMsgType())
         {
@@ -269,7 +274,7 @@ public class NavClient extends Thread implements Runnable
         	{
         		if (respMsg.getParameterType() == ParameterType.TAIT_BRYAN)
         		{
-        			processTaitBryanAngles(respMsg.getNavAngles());
+        			processTaitBryanAngles(respMsg.getNavAngles().clone());
         		}
         		else
         		{
