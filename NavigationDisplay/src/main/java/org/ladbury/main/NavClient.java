@@ -1,7 +1,6 @@
 package org.ladbury.main;
 import com.sun.j3d.utils.applet.MainFrame;
 import dataTypes.TimestampedData3f;
-import inertialNavigation.Client;
 import messages.Message;
 import messages.Message.CommandType;
 import messages.Message.ErrorMsgType;
@@ -23,8 +22,6 @@ import java.net.SocketTimeoutException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 public class NavClient extends Thread implements Runnable
 {
@@ -54,9 +51,9 @@ public class NavClient extends Thread implements Runnable
 		this.stop = false;
 		this.msgsIn = 0;
 		this.msgsOut = 0;
-		new MainFrame(cube, 256, 256);
-		
+		new MainFrame(cube, 256, 256);	
 	}
+	
     public static void main(String[] args) throws IOException {
 
     	NavClient navClient;
@@ -106,10 +103,8 @@ public class NavClient extends Thread implements Runnable
 	        	{
 	        		System.err.println("Failed to register with Server");
 	        		System.exit(5);
-	        	}
-	        
-	        requestStreamedData(ParameterType.TAIT_BRYAN);
-			
+	        	}	        
+	        requestStreamedData(ParameterType.TAIT_BRYAN);		
 	        while (!stop)
 	        {
 	            // get and handle responses
@@ -121,7 +116,7 @@ public class NavClient extends Thread implements Runnable
 	            	stop = true;
 	            }
 	        }
-	        System.out.println("Stopping receiving data");
+	        if (debugLevel >=1)System.out.println("Stopping receiving data");
 	        socket.close();
 	    }
 	    catch (Exception e)
@@ -175,7 +170,7 @@ public class NavClient extends Thread implements Runnable
 	}
 	private void requestStreamedData(ParameterType p)
 	{
-        System.out.println("Requesting stream: " + p.name());
+		if (debugLevel >=1)System.out.println("Requesting stream: " + p.name());
         Message reqMsg = new Message();
         reqMsg.setMsgType(MessageType.STREAM_REQ);
         reqMsg.setParameterType(p);
@@ -194,27 +189,26 @@ public class NavClient extends Thread implements Runnable
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-
 	}
 	
     private boolean handleMessage(DatagramPacket packet)
     {
 		if(debugLevel>=5) System.out.println("handleMessage");
     	int receivedBytes = 0;
-		receivedBytes = packet.getLength(); //actual length of data
+		/*receivedBytes = packet.getLength(); //actual length of data
 		byte[] trimmedData = new byte[receivedBytes];
 		for(int i = 0; i < receivedBytes; i++)
 		{
 			trimmedData[i] = packet.getData()[i];
-		}
+		}*/
     	//System.out.println("Handle Data: "+receivedBytes+" " +Arrays.toString(trimmedData));
-    	Message respMsg = Message.deSerializeMsg(trimmedData);
+    	Message respMsg = Message.deSerializeMsg(packet.getData());
     	if(respMsg == null)
     	{
-    		System.out.println("null message received");
+    		System.err.println("null message received");
     		System.exit(5);
     	}
-    	if (msgsIn <=7) System.out.println("Received msg ("+receivedBytes+"bytes): "+ respMsg.toString());
+    	if (debugLevel >=4) if (msgsIn <=7) System.out.println("Received msg ("+receivedBytes+"bytes): "+ respMsg.toString());
     	ErrorMsgType error = respMsg.getErrorMsgType();
         boolean success = true;
         switch (respMsg.getMsgType())
@@ -224,7 +218,7 @@ public class NavClient extends Thread implements Runnable
         	{
         		Instant time = respMsg.getTime();
         		LocalDateTime ldt = LocalDateTime.ofInstant(time, ZoneId.systemDefault());
-        		System.out.println("Ping Response at : "+ ldt.toString());
+        		if (debugLevel >=4)System.out.println("Ping Response at : "+ ldt.toString());
         	}
         	else 
         	{
@@ -237,7 +231,7 @@ public class NavClient extends Thread implements Runnable
             { 	//register client and start thread
         		Instant time = respMsg.getTime();
         		LocalDateTime ldt = LocalDateTime.ofInstant(time, ZoneId.systemDefault());
-        		System.out.println("Client registered at : "+ ldt.toString());
+        		if (debugLevel >=1)System.out.println("Client registered at : "+ ldt.toString());
             }
         	else
         	{
@@ -248,7 +242,7 @@ public class NavClient extends Thread implements Runnable
         case GET_PARAM_RESP: 
         	if (error == ErrorMsgType.SUCCESS)
         	{
-        		System.out.println("Get parameter Response: "+respMsg.getParameterType().toString()+ 
+        		if (debugLevel >=4)System.out.println("Get parameter Response: "+respMsg.getParameterType().toString()+ 
         				" value: "+ respMsg.getNavAngles().toString()); //other cases of param
         	}
         	else
@@ -260,7 +254,7 @@ public class NavClient extends Thread implements Runnable
         case SET_PARAM_RESP:
         	if (error == ErrorMsgType.SUCCESS)
         	{
-        		System.out.println("Set parameter Response: "+respMsg.getParameterType().toString()+ 
+        		if (debugLevel >=4)System.out.println("Set parameter Response: "+respMsg.getParameterType().toString()+ 
         				" value: "+ respMsg.getNavAngles().toString()); //other cases of param
         	}
         	else
@@ -293,7 +287,7 @@ public class NavClient extends Thread implements Runnable
         case CONTROL_REQ: 
         	if (respMsg.getCommandType() == CommandType.STOP)
         	{
-        		System.out.println("Stop received from server");
+        		if (debugLevel >=4)System.out.println("Stop received from server");
         		stop = true;
         	}
         	else 
@@ -305,7 +299,7 @@ public class NavClient extends Thread implements Runnable
         case CONTROL_RESP: 
         	if (error == ErrorMsgType.SUCCESS)
         	{
-        		System.out.println("control Response: "+respMsg.getParameterType().toString()+ 
+        		if (debugLevel >=4)System.out.println("control Response: "+respMsg.getParameterType().toString()+ 
         				" value: "+ respMsg.getCommandType().toString()); 
         	}
         	else 
@@ -321,18 +315,6 @@ public class NavClient extends Thread implements Runnable
         return success;
     }
 
-    private void processAnglesMsg(String s)
-    {
-    	String[] split = s.split(",");
-    	Long time = Long.parseLong(split[0]);
-    	float yaw = Float.parseFloat(split[1]);
-    	float pitch = Float.parseFloat(split[2]);
-    	float roll = Float.parseFloat(split[3]);
-    	long milliSeconds = TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS);
-    	if(debugLevel>=4) System.out.format("Angles - [%8d ms] Yaw: %08.3f Pitch: %08.3f Roll: %08.3f%n",milliSeconds,yaw, pitch,roll);
-    	TimestampedData3f data = new TimestampedData3f(yaw,pitch,roll,time);
-    	processTaitBryanAngles(data);
-     }
     private void processTaitBryanAngles(TimestampedData3f data)
     {
     	this.dynamicGraph.addReading(data);
