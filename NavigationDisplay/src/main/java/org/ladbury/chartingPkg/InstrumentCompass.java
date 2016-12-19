@@ -90,7 +90,7 @@ public class InstrumentCompass extends ApplicationFrame {
         chartPanel = new ChartPanel(chart);// add the chart to a panel...
         chartPanel.setPreferredSize(new java.awt.Dimension(300, 270));
         chartPanel.setEnforceFileExtensions(false);
-        
+
         setContentPane(chartPanel); //add the panel to the ApplicationFrame
     }
     
@@ -139,7 +139,7 @@ public class InstrumentCompass extends ApplicationFrame {
     	// incorporated in calling class, called only for demo
         final InstrumentCompass compass = new InstrumentCompass("Compass");
         compass.pack();
-        RefineryUtilities.centerFrameOnScreen(compass);
         compass.setVisible(true);
+        compass.setLocation(300,10);
     }
 }

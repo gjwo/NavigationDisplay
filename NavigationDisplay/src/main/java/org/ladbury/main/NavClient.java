@@ -1,6 +1,7 @@
 package org.ladbury.main;
 import com.sun.j3d.utils.applet.MainFrame;
 import dataTypes.TimestampedData3f;
+import inertialNavigation.RemoteInstruments;
 import messages.Message;
 import messages.Message.CommandType;
 import messages.Message.ErrorMsgType;
@@ -19,6 +20,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.rmi.NotBoundException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -54,13 +58,16 @@ public class NavClient extends Thread implements Runnable
 		new MainFrame(cube, 256, 256);	
 	}
 	
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NotBoundException
+	{
 
     	NavClient navClient;
         NavClientGUI ncg = null;
         DynamicLineAndTimeSeriesChart dc;
         InstrumentCompass comp;
-   	    	 
+
+        new RMITest("192.168.1.127").start();
+
         if (args.length != 1) {
              System.out.println("Usage: java NavClient <hostname>");
              return;
@@ -80,8 +87,6 @@ public class NavClient extends Thread implements Runnable
         //ncg.init();
         //ncg.start();
         navClient.start();
-        
-        
      }
     
 	@Override

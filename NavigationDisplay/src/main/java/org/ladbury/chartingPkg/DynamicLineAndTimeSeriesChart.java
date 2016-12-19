@@ -42,6 +42,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
     public DynamicLineAndTimeSeriesChart(final String title) {
 
         super(title);
+        this.setLocation(10,300);
         this.yawSeries = new TimeSeries("Yaw");
         this.pitchSeries = new TimeSeries("Pitch");
         this.rollSeries = new TimeSeries("Roll");
