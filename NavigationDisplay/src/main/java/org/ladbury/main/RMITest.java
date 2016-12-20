@@ -30,7 +30,6 @@ public class RMITest extends Thread
         reg = LocateRegistry.getRegistry(hostname, Registry.REGISTRY_PORT);
         instruments = (RemoteInstruments) reg.lookup("Instruments");
         navDisplay = new NavDisplay();
-        //testDriveAssembly();
 		this.navClientGUI = new NavClientGUI(4);
         NavClientGUI.setNavClientMain(navClientGUI); 
         navClientGUI.init();
@@ -66,20 +65,4 @@ public class RMITest extends Thread
         }
         new RMITest(args[0]).start();
      }
-    private void testDriveAssembly()
-    {
-    	RemoteDriveAssembly rda;
-		try {
-			System.out.println(Arrays.toString(reg.list()));
-			rda = (RemoteDriveAssembly)reg.lookup("DriveAssembly");
-	    	rda.setSpeed(1f);
-	    	TimeUnit.SECONDS.sleep(1);
-	    	rda.stop();
-	    	} catch (RemoteException | NotBoundException | InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-
-    }
 }
