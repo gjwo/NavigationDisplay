@@ -21,6 +21,8 @@ public class RMITest extends Thread
 	NavDisplay navDisplay;
     RemoteInstruments instruments;
     Registry reg;
+    private NavClientGUI navClientGUI;
+
     
     RMITest(String hostname) throws RemoteException, NotBoundException
     {
@@ -29,6 +31,12 @@ public class RMITest extends Thread
         instruments = (RemoteInstruments) reg.lookup("Instruments");
         navDisplay = new NavDisplay();
         testDriveAssembly();
+		this.navClientGUI = new NavClientGUI(4);
+        NavClientGUI.setNavClientMain(navClientGUI); 
+        navClientGUI.init();
+        navClientGUI.start();
+
+
     }
 
     @Override
