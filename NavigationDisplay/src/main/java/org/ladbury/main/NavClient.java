@@ -33,29 +33,24 @@ public class NavClient extends Thread implements Runnable
 	private InetAddress serverAddress = null;
     private int debugLevel;
     private NavClientGUI navClientGUI;
-    private final InstrumentCompass compass;
-    private final DynamicLineAndTimeSeriesChart dynamicGraph;
     private final String serverName;
-    private final CubeFrame cube;
     private boolean stop;
     private final int BUFFER_SIZE = 1024;
     private DatagramSocket socket = null;
     private long msgsIn;
     private long msgsOut;
+    private NavDisplay navDisplay;
 
-	private NavClient(String serverName, NavClientGUI gui, DynamicLineAndTimeSeriesChart dg, InstrumentCompass comp, int debug)
+	private NavClient(String serverName, NavClientGUI gui,  int debug)
 	{
 		//this.navClientGUI = gui;
 		this.serverName = serverName;
 		this.setName("NavClientThread");
 		this.debugLevel = debug;
-		this.dynamicGraph = dg;
-		this.compass = comp;
-		this.cube = new CubeFrame();
 		this.stop = false;
 		this.msgsIn = 0;
 		this.msgsOut = 0;
-		new MainFrame(cube, 256, 256);	
+		this.navDisplay = new NavDisplay();
 	}
 	
     public static void main(String[] args) throws IOException, NotBoundException
@@ -63,10 +58,6 @@ public class NavClient extends Thread implements Runnable
 
     	NavClient navClient;
         NavClientGUI ncg = null;
-        DynamicLineAndTimeSeriesChart dc;
-        InstrumentCompass comp;
-
-        new RMITest("192.168.1.127").start();
 
         if (args.length != 1) {
              System.out.println("Usage: java NavClient <hostname>");
@@ -79,27 +70,24 @@ public class NavClient extends Thread implements Runnable
             e.printStackTrace();
         }
 
+        navClient = new NavClient(args[0],ncg,1);
+        navClient.start();
+
+        new RMITest("192.168.1.127").start();
+
         //ncg = new NavClientGUI(4);
-        dc = new DynamicLineAndTimeSeriesChart("Navigation Data");
-        comp = new InstrumentCompass("Compass");
         //NavClientGUI.setNavClientMain(ncg); 
-        navClient = new NavClient(args[0],ncg,dc,comp,1);
         //ncg.init();
         //ncg.start();
-        navClient.start();
      }
     
 	@Override
 	public void run() {
 	    try
 	    {
+	    	navDisplay.initDisplay();
 	        socket = new DatagramSocket();
 	    	//dynamicGraph = new DynamicLineAndTimeSeriesChart("Navigation Data");
-	        dynamicGraph.pack();
-	        dynamicGraph.setVisible(true);
-	        compass.pack();
-	        RefineryUtilities.centerFrameOnScreen(compass);
-	        compass.setVisible(true);	        
 	        serverAddress = InetAddress.getByName(serverName);	        
 	        byte[] buf = new byte[BUFFER_SIZE];
 	    	DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
@@ -200,13 +188,6 @@ public class NavClient extends Thread implements Runnable
     {
 		if(debugLevel>=5) System.out.println("handleMessage");
     	int receivedBytes = 0;
-		/*receivedBytes = packet.getLength(); //actual length of data
-		byte[] trimmedData = new byte[receivedBytes];
-		for(int i = 0; i < receivedBytes; i++)
-		{
-			trimmedData[i] = packet.getData()[i];
-		}*/
-    	//System.out.println("Handle Data: "+receivedBytes+" " +Arrays.toString(trimmedData));
     	Message respMsg = Message.deSerializeMsg(packet.getData());
     	if(respMsg == null)
     	{
@@ -273,7 +254,7 @@ public class NavClient extends Thread implements Runnable
         	{
         		if (respMsg.getParameterType() == ParameterType.TAIT_BRYAN)
         		{
-        			processTaitBryanAngles(respMsg.getNavAngles().clone());
+        			navDisplay.processTaitBryanAngles(respMsg.getNavAngles().clone());
         		}
         		else
         		{
@@ -320,10 +301,4 @@ public class NavClient extends Thread implements Runnable
         return success;
     }
 
-    private void processTaitBryanAngles(TimestampedData3f data)
-    {
-    	this.dynamicGraph.addReading(data);
-    	this.compass.setHeading(data.getX());
-    	this.cube.myRotationBehavior.setAngles(data);
-    }
 }
