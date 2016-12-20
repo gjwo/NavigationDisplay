@@ -30,7 +30,7 @@ public class RMITest extends Thread
         reg = LocateRegistry.getRegistry(hostname, Registry.REGISTRY_PORT);
         instruments = (RemoteInstruments) reg.lookup("Instruments");
         navDisplay = new NavDisplay();
-        testDriveAssembly();
+        //testDriveAssembly();
 		this.navClientGUI = new NavClientGUI(4);
         NavClientGUI.setNavClientMain(navClientGUI); 
         navClientGUI.init();

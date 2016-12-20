@@ -34,6 +34,9 @@ public class UiFrame
     private JMenu jMenuFile = new JMenu("File");
     private JMenuItem jMenuFileOpen = new JMenuItem("Open");
     private JMenuItem jMenuFileSave = new JMenuItem("Save");
+    
+    private JMenuItem jMenuFileMotorControl = new JMenuItem("Motor Control");
+    
     private JMenuItem jMenuFileExit = new JMenuItem("Exit");
 
     
@@ -90,34 +93,18 @@ public class UiFrame
         textArea1.setEditable(false);
         textArea1.setFont(UiStyle.NORMAL_FONT);
         textArea1.setRows(20);
-        textArea1.setText("Smart Power System Messages\n");
+        textArea1.setText("");
 
         contentPane.add(textArea1, BorderLayout.CENTER);
     }
 
     private void createFileMenu(){
-/*
-        // add sub items and their actions 
-        jMenuFile.add(jMenuFileOpen);
-        jMenuFileOpen.addActionListener(new java.awt.event.ActionListener() {
-           public void actionPerformed(ActionEvent e) {
-                jMenuFileOpen_actionPerformed(e);
-            }
-        });
-        jMenuFile.add(jMenuFileSave);
-        jMenuFileSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jMenuFileSave_actionPerformed(e);
-            }
-        });
-        jMenuFile.addSeparator();*/
+    	
+    	jMenuFileMotorControl.addActionListener(e -> jMenuFileMotorControl_actionPerformed(e));
+    	jMenuFile.add(jMenuFileMotorControl);
         jMenuFile.add(jMenuFileExit);
-        jMenuFileExit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jMenuFileExit_actionPerformed(e);
-            }
-        });
-        // add the menu to the menu bar
+
+        jMenuFileExit.addActionListener(e-> jMenuFileExit_actionPerformed(e));
         jMenuBar1.add(jMenuFile);
     }
 
@@ -208,6 +195,11 @@ public class UiFrame
     //
     public void jMenuFileExit_actionPerformed(ActionEvent e) {
         NavClientGUI.getMain().stop();
+    }
+    
+    public void jMenuFileMotorControl_actionPerformed(ActionEvent e) 
+    {
+    	new MotorControlFrame();
     }
     //
     //Chart Line action performed
