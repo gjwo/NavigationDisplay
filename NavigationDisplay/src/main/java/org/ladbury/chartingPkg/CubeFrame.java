@@ -70,7 +70,7 @@ public class CubeFrame extends Applet {
         {
         rotation.rotX(Math.toRadians(angles.getY()));
         Transform3D y = new Transform3D();
-        y.rotY(Math.toRadians(angles.getX()));
+        y.rotY(-Math.toRadians(angles.getX()));
         Transform3D z = new Transform3D();
         z.rotZ(Math.toRadians(angles.getZ()));
         rotation.mul(y);
