@@ -1,13 +1,20 @@
 package org.ladbury.main;
 
+import devices.driveAssembly.RemoteDriveAssembly;
+import devices.driveAssembly.RemoteDriveAssemblyImpl;
 import inertialNavigation.RemoteInstruments;
 import java.io.IOException;
 import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 import dataTypes.TimestampedData3f;
+import main.RemoteMain;
 
 /**
  * NavigationDisplay - org.ladbury.main
@@ -23,7 +30,6 @@ public class RMITest extends Thread
     
     RMITest(String hostname) throws RemoteException, NotBoundException
     {
-        System.setProperty("java.rmi.server.hostname", hostname) ;
         reg = LocateRegistry.getRegistry(hostname, Registry.REGISTRY_PORT);
         instruments = (RemoteInstruments) reg.lookup("Instruments");
         navDisplay = new NavDisplay();
@@ -52,12 +58,23 @@ public class RMITest extends Thread
             }
     }
     
-    public static void main(String[] args) throws IOException, NotBoundException
-	{
+    public static void main(String[] args) throws IOException, NotBoundException, InterruptedException
+    {
          if (args.length != 1) {
              System.out.println("Usage: java NavClient <hostname>");
              return;
         }
+        System.setProperty("java.rmi.server.hostname", args[0]) ;
+        Registry reg = LocateRegistry.getRegistry(args[0], Registry.REGISTRY_PORT);
+        System.out.println(Arrays.toString(reg.list()));
+
+        RemoteMain main = (RemoteMain)reg.lookup("Main");
+        EnumSet<RemoteMain.SubSystemType> systems =
+                EnumSet.of(RemoteMain.SubSystemType.INSTRUMENTS, RemoteMain.SubSystemType.DRIVE_ASSEMBLY);
+        main.start(systems);
+
+        System.out.println(Arrays.toString(reg.list()));
+
         new RMITest(args[0]).start();
      }
 }

@@ -44,7 +44,7 @@ class MotorControlFrame extends JFrame {
 		this.setSize(new Dimension(400,400));
 		this.setLayout(new GridLayout(3,2));
 		this.setTitle("Motor Control");
-	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setVisible(true);
 		
 		try {
