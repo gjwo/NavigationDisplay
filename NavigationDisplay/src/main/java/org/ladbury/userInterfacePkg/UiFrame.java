@@ -80,7 +80,6 @@ public class UiFrame
         // add a menu bar
         this.setJMenuBar(jMenuBar1);
         
-  
         // initialise the menus
         createFileMenu();
         createChartMenu();
@@ -108,8 +107,6 @@ public class UiFrame
         jMenuBar1.add(jMenuFile);
     }
 
-  
-
     private void createChartMenu(){
         // add sub items and their actions    
     	
@@ -119,21 +116,6 @@ public class UiFrame
             }
         });
         jMenuChart.add(jMenuChartLine);
-/*        
-        jMenuChartHistogram.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jMenuChartHistogram_actionPerformed(e);
-            }
-        });
-        jMenuChart.add(jMenuChartHistogram);
-        jMenuChartScatter.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //jMenuChartScatter_actionPerformed(e);
-            }
-        });
-        jMenuChart.add(jMenuChartScatter);
-       // add the menu to the menu bar
-        jMenuBar1.add(jMenuChart);*/
     }
    
     private void createHelpMenu(){
@@ -181,7 +163,7 @@ public class UiFrame
         //FilenameFilter m_filter = "*.csv";
         // create a file dialogue
         fileDialogue = new FileDialog(this, "Open measurement readings (.csv) file");
-        //fileDialogue.setFilenameFilter((FilenameFilter)"*.csv");
+        //fileDialogue.setFilenameFiter((FilenameFilter)"*.csv");
         fileDialogue.setDirectory("c:/");
         fileDialogue.setVisible(true);
         // File Dialogue is modal so won't return unless file or cancel
@@ -211,28 +193,7 @@ public class UiFrame
         NavClientGUI.getMain().change_state(NavClientGUI.RunState.PROCESS_READINGS);  //trigger processing in org.ladbury.main loop
 
     }
-/*
-    //
-    //Histogram action performed
-    //
-    public void jMenuChartHistogram_actionPerformed(ActionEvent e) {
-    	
-    	Meter m = NavClientGUI.getMain().getData().getMeters().get(0);  
-    	ArrayList<TimeHistogram> histograms = new ArrayList<TimeHistogram>(Collections.<TimeHistogram>emptyList());
-    	for (int i = 0; i<m.getMetricCount(); i++ ){
-    		if (m.getMetric(i).getReadingsCount()>0){
-    			histograms.add(new TimeHistogram("Power Histogram",m.getMetric(i),"Power (W)"));
-    		}
-    	}
-		for (int i = 0; i<histograms.size();i++){
-			histograms.get(i).setLocation(i*20, i*20);  //cascade windows
-			histograms.get(i).pack();
-			//RefineryUtilities.centerFrameOnScreen(histograms.get(i));
-			histograms.get(i).setVisible(true);	
-		}
-		
-    }
-*/    
+    
       public void displayLog(String str) {
         textArea1.append(str);
         repaint();
