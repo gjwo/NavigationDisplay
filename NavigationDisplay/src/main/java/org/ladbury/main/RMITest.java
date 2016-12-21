@@ -1,16 +1,13 @@
 package org.ladbury.main;
 
 import inertialNavigation.RemoteInstruments;
-
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import dataTypes.TimestampedData3f;
-import devices.driveAssembly.RemoteDriveAssembly;
 
 /**
  * NavigationDisplay - org.ladbury.main
@@ -34,8 +31,6 @@ public class RMITest extends Thread
         NavClientGUI.setNavClientMain(navClientGUI); 
         navClientGUI.init();
         navClientGUI.start();
-
-
     }
 
     @Override
