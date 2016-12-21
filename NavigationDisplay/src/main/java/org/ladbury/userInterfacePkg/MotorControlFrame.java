@@ -77,8 +77,8 @@ class MotorControlFrame extends JFrame {
 	}
 	
 	private void createButtons() {
-		forwards = 	new JButton("Forwards");
-		backwards = new JButton("Backwards");
+		forwards = 	new JButton("Faster");
+		backwards = new JButton("Slower");
 		left = 		new JButton("Left");
 		right = 	new JButton("Right");
 		stop = 		new JButton("Stop");
