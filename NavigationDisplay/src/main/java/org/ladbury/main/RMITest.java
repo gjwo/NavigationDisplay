@@ -1,7 +1,5 @@
 package org.ladbury.main;
 
-import devices.driveAssembly.RemoteDriveAssembly;
-import devices.driveAssembly.RemoteDriveAssemblyImpl;
 import inertialNavigation.RemoteInstruments;
 import java.io.IOException;
 import java.rmi.NotBoundException;
@@ -14,6 +12,8 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 import dataTypes.TimestampedData3f;
+import devices.driveAssembly.RemoteDriveAssembly;
+import devices.driveAssembly.RemoteDriveAssemblyImpl;
 import main.RemoteMain;
 
 /**
