@@ -40,7 +40,8 @@ public class LogDisplay extends Thread implements LogDisplayer, Serializable
 		count = 0;
         try
         {
-            entries = ((RemoteLog)LocateRegistry.getRegistry(RMITest.hostname, Registry.REGISTRY_PORT).lookup("Log")).getEntries();
+            entries = ((RemoteLog)LocateRegistry.getRegistry(RMITest.hostname,
+                        Registry.REGISTRY_PORT).lookup("Log")).getEntries();
         } catch (RemoteException | NotBoundException e)
         {
             e.printStackTrace();
@@ -52,7 +53,7 @@ public class LogDisplay extends Thread implements LogDisplayer, Serializable
     
     public void displayLog(String str) 
     {
-        textArea.append(str + "\n");
+        textArea.append(str );
         parent.repaint();
     }
     
@@ -115,6 +116,7 @@ public class LogDisplay extends Thread implements LogDisplayer, Serializable
                 for(int i = count; i<entries.size(); i++)
                 {
                     displayLog(entries.get(i).toString());
+                    newline();
                     count = i;
                 }
             }
