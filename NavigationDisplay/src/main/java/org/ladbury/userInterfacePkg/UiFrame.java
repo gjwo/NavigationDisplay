@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
+import java.io.Serializable;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;

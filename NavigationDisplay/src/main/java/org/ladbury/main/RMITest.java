@@ -7,6 +7,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -15,6 +16,10 @@ import dataTypes.TimestampedData3f;
 import devices.driveAssembly.RemoteDriveAssembly;
 import devices.driveAssembly.RemoteDriveAssemblyImpl;
 import main.RemoteMain;
+import subsystems.LogDisplayer;
+import subsystems.LogEntry;
+import subsystems.RemoteLog;
+import subsystems.SystemLog;
 
 /**
  * NavigationDisplay - org.ladbury.main
@@ -26,6 +31,8 @@ public class RMITest extends Thread
     RemoteInstruments instruments;
     Registry reg;
     private NavClientGUI navClientGUI;
+
+    public static String hostname;
 
     
     RMITest(String hostname) throws RemoteException, NotBoundException
@@ -64,9 +71,15 @@ public class RMITest extends Thread
              System.out.println("Usage: java NavClient <hostname>");
              return;
         }
+        hostname = args[0];
         System.setProperty("java.rmi.server.hostname", args[0]) ;
         Registry reg = LocateRegistry.getRegistry(args[0], Registry.REGISTRY_PORT);
         System.out.println(Arrays.toString(reg.list()));
+
+        RemoteLog log = (RemoteLog) reg.lookup("Log");
+        //log.registerInterest((LogDisplayer) UnicastRemoteObject.exportObject(new LogHandler(),0));
+        //for(int i =0; i< log.getEntryCount(); i++) System.out.println(log.getEntry(i).toString());
+        for(LogEntry entry:log.getEntries())System.out.println(entry.toString());
 
         RemoteMain main = (RemoteMain)reg.lookup("Main");
         EnumSet<RemoteMain.SubSystemType> systems =

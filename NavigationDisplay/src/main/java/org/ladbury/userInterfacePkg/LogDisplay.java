@@ -1,14 +1,26 @@
 package org.ladbury.userInterfacePkg;
 
-import java.awt.Color;
-import java.awt.TextArea;
+import org.ladbury.main.RMITest;
+import subsystems.LogDisplayer;
+import subsystems.LogEntry;
+import subsystems.RemoteLog;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.ArrayList;
 
 
-public class LogDisplay
+public class LogDisplay extends Thread implements LogDisplayer, Serializable
 {
-	private static LogDisplay logDisplay;
+	private static LogDisplay logDisplay = null;
 	private TextArea textArea;
 	private UiFrame parent;
+	private int count;
+	private ArrayList<LogEntry> entries;
 	
 	static public LogDisplay getLogDisplay(){return logDisplay;}
 	
@@ -25,52 +37,88 @@ public class LogDisplay
         textArea.setRows(20);
         textArea.setText("");
 		LogDisplay.logDisplay = this;
-	}
+		count = 0;
+        try
+        {
+            entries = ((RemoteLog)LocateRegistry.getRegistry(RMITest.hostname, Registry.REGISTRY_PORT).lookup("Log")).getEntries();
+        } catch (RemoteException | NotBoundException e)
+        {
+            e.printStackTrace();
+            entries = new ArrayList<>();
+        }
+        this.start();
+    }
 	public TextArea getLogDisplayArea(){return textArea;}
     
     public void displayLog(String str) 
     {
-        textArea.append(str);
+        textArea.append(str + "\n");
         parent.repaint();
     }
     
     public void displayLog(int i) 
     {
-        Integer intWrapper = new Integer(i);
-        textArea.append(intWrapper.toString());
+        textArea.append(Integer.toString(i));
         parent.repaint();
     }
     
     public void displayLog(long l) 
     {
-        Long lWrapper = new Long(l);
-        textArea.append(lWrapper.toString());
+        textArea.append(Long.toString(l));
         parent.repaint();
     }
     
     public void displayLog(double d) 
     {
-        Double dWrapper = new Double(d);
-        textArea.append(dWrapper.toString());
+        textArea.append(Double.toString(d));
         parent.repaint();
     }
     
     public void displayLog(float f) 
     {
-        Float fWrapper = new Float(f);
-        textArea.append(fWrapper.toString());
+        textArea.append(Float.toString(f));
         parent.repaint();
     }
     
     public void displayLog(boolean b) 
     {
-        Boolean bWrapper = new Boolean(b);
-        textArea.append(bWrapper.toString());
+        textArea.append(Boolean.toString(b));
         parent.repaint();
     }
 
     public void newline()
     {
     	displayLog("\n\r");
+    }
+
+    @Override
+    public void showEntry(String entry) throws RemoteException
+    {
+        displayLog(entry);
+    }
+
+    @Override
+    public void run()
+    {
+        super.run();
+
+        while(!Thread.interrupted())
+        {
+            if(entries.size()-1 == count )
+            {
+                try
+                {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {}
+            } else
+            {
+                for(int i = count; i<entries.size(); i++)
+                {
+                    displayLog(entries.get(i).toString());
+                    count = i;
+                }
+            }
+        }
+
     }
 }
