@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 
 import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
+import org.ladbury.userInterfacePkg.LogDisplay;
 import org.ladbury.userInterfacePkg.UiFrame;
 
 import dataTypes.CircularArrayRing;
@@ -173,10 +174,10 @@ public class NavClientGUI extends Applet implements Runnable,UpdateListener {
                     case IDLE:
                     	if ((this.debugLevel >=3) && i>=(1000/delayms) ) //only display if debug is on at intervals 1 second
                     	{
-	                        this.frame.displayLog(".");
+	                        LogDisplay.getLogDisplay().displayLog(".");
 	                        i=0;
 	                        j++;
-	                        if (j == 79){ this.frame.displayLog("\n\r"); j=0;}
+	                        if (j == 79){ LogDisplay.getLogDisplay().displayLog("\n\r"); j=0;}
 	                        repaint();
                     	}
                         break;

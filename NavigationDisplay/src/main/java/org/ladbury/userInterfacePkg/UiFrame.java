@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
 import org.ladbury.main.NavClientGUI;
+import org.ladbury.userInterfacePkg.LogDisplay.*;
 
 public class UiFrame
     extends JFrame {
@@ -47,17 +48,19 @@ public class UiFrame
 
     private JMenu jMenuHelp = new JMenu("Help");
     private JMenuItem jMenuHelpAbout = new JMenuItem("About..");
-    private TextArea textArea1 = new TextArea();
+    private LogDisplay logDisplay;
 
     private FileDialog fileDialogue = null;
 	private String 	windowTitle = null;
 	private DynamicLineAndTimeSeriesChart dynamicGraph;
 	public DynamicLineAndTimeSeriesChart getDynamicGraph(){return dynamicGraph;}
+	public LogDisplay getLogDisplay(){return logDisplay;}
     //
     // Construct the frame
     //
     public UiFrame(String str) {
         super(str);
+        logDisplay  = new LogDisplay(this);
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             windowTitle = str;
@@ -85,16 +88,7 @@ public class UiFrame
         createChartMenu();
         createHelpMenu();
  
-        // add log text area
-        textArea1.setBackground(Color.pink);
-        textArea1.setColumns(80);
-        textArea1.setCursor(null);
-        textArea1.setEditable(false);
-        textArea1.setFont(UiStyle.NORMAL_FONT);
-        textArea1.setRows(20);
-        textArea1.setText("");
-
-        contentPane.add(textArea1, BorderLayout.CENTER);
+        contentPane.add(logDisplay.getLogDisplayArea(), BorderLayout.CENTER);
     }
 
     private void createFileMenu(){
@@ -194,10 +188,6 @@ public class UiFrame
 
     }
     
-      public void displayLog(String str) {
-        textArea1.append(str);
-        repaint();
-    }
 
       //
       //Help About action performed
@@ -214,14 +204,6 @@ public class UiFrame
           dlg.setVisible(true);
       }
 
-    //
-    // write an integer to the log area
-    //
-    public void displayLog(int i) {
-        Integer intWrapper = new Integer(i);
-        textArea1.append(intWrapper.toString());
-        repaint();
-    }
     public FileDialog getFileDialog() {
 		return fileDialogue;
 	}
