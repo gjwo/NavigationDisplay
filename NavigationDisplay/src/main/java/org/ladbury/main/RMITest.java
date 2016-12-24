@@ -11,6 +11,7 @@ import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 import dataTypes.TimestampedData3f;
 import main.RemoteMain;
+import subsystems.SubSystem;
 
 /**
  * NavigationDisplay - org.ladbury.main
@@ -69,7 +70,7 @@ public class RMITest extends Thread
 
         RemoteMain main = (RemoteMain)reg.lookup("Main");
 
-        main.start(EnumSet.of(RemoteMain.SubSystemType.INSTRUMENTS, RemoteMain.SubSystemType.DRIVE_ASSEMBLY));
+        main.start(EnumSet.of(SubSystem.SubSystemType.INSTRUMENTS, SubSystem.SubSystemType.DRIVE_ASSEMBLY));
 
         System.out.println(Arrays.toString(reg.list()));
 
