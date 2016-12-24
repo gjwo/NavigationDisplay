@@ -1,12 +1,10 @@
 package org.ladbury.userInterfacePkg;
 
 import org.ladbury.main.RMITest;
-import subsystems.LogDisplayer;
-import subsystems.LogEntry;
-import subsystems.RemoteLog;
+import logging.LogEntry;
+import logging.RemoteLog;
 
 import java.awt.*;
-import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -14,7 +12,7 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
 
-public class LogDisplay extends Thread implements LogDisplayer, Serializable
+public class LogDisplay extends Thread
 {
 	private static LogDisplay logDisplay = null;
 	private TextArea textArea;
@@ -40,8 +38,7 @@ public class LogDisplay extends Thread implements LogDisplayer, Serializable
 		count = 0;
         try
         {
-            entries = ((RemoteLog)LocateRegistry.getRegistry(RMITest.hostname,
-                        Registry.REGISTRY_PORT).lookup("Log")).getEntries();
+            entries = ((RemoteLog)RMITest.registry.lookup("Log")).getEntries();
         } catch (RemoteException | NotBoundException e)
         {
             e.printStackTrace();
@@ -90,12 +87,6 @@ public class LogDisplay extends Thread implements LogDisplayer, Serializable
     public void newline()
     {
     	displayLog("\n\r");
-    }
-
-    @Override
-    public void showEntry(String entry) throws RemoteException
-    {
-        displayLog(entry);
     }
 
     @Override
