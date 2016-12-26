@@ -182,7 +182,7 @@ public class UiFrame
     //Chart Line action performed
     //
     public void jMenuChartLine_actionPerformed(ActionEvent e) {
-    	dynamicGraph = new DynamicLineAndTimeSeriesChart("Navigation Data");
+    	dynamicGraph = new DynamicLineAndTimeSeriesChart();
         dynamicGraph.pack();
         dynamicGraph.setVisible(true);
         NavClientGUI.getMain().change_state(NavClientGUI.RunState.PROCESS_READINGS);  //trigger processing in org.ladbury.main loop

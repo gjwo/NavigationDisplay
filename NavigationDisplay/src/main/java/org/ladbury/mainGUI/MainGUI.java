@@ -69,7 +69,7 @@ public class MainGUI extends JFrame
         JMenu graphMenu = new JMenu("Graphing");
 
         JMenuItem imuGraph = new JMenuItem("IMU Graph");
-        imuGraph.addActionListener(a -> new DynamicLineAndTimeSeriesChart("Navigation Data"));
+        imuGraph.addActionListener(a -> new DynamicLineAndTimeSeriesChart());
         graphMenu.add(imuGraph);
 
         JMenuItem cube = new JMenuItem("Orientation Cube");
@@ -77,7 +77,7 @@ public class MainGUI extends JFrame
         graphMenu.add(cube);
 
         JMenuItem compass = new JMenuItem("Compass");
-        compass.addActionListener(a -> new InstrumentCompass("Compass"));
+        compass.addActionListener(a -> new InstrumentCompass());
         graphMenu.add(compass);
 
         // Control menu

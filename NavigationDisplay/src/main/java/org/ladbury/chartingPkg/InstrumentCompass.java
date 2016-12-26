@@ -88,10 +88,8 @@ public class InstrumentCompass extends SubSystemDependentJFrame implements Runna
 
 	/**
      * InstrumentCompass	-	Constructor
-     *
-     * @param title  the frame title.
      */
-    public InstrumentCompass(final String title)
+    public InstrumentCompass()
     {
         super(EnumSet.of(SubSystem.SubSystemType.INSTRUMENTS));
         this.setTitle("Compass");
@@ -176,7 +174,7 @@ public class InstrumentCompass extends SubSystemDependentJFrame implements Runna
      */
     public static void main(final String[] args) {
     	// incorporated in calling class, called only for demo
-        final InstrumentCompass compass = new InstrumentCompass("Compass");
+        final InstrumentCompass compass = new InstrumentCompass();
         compass.pack();
         compass.setVisible(true);
         compass.setLocation(300,10);

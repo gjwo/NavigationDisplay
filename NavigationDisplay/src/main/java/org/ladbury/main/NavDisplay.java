@@ -23,9 +23,9 @@ public class NavDisplay {
         catch (Exception e) {
             e.printStackTrace();
         }*/
-		this.dynamicGraph = new DynamicLineAndTimeSeriesChart("Navigation Data");
+		this.dynamicGraph = new DynamicLineAndTimeSeriesChart();
 		dynamicGraph.setLocation(10, 350);
-		this.compass = new InstrumentCompass("Compass");
+		this.compass = new InstrumentCompass();
 		compass.setLocation(300, 10);
 		this.cube = new CubeFrame();
 		//new MainFrame(cube, 256, 256).setLocation(10, 10);;

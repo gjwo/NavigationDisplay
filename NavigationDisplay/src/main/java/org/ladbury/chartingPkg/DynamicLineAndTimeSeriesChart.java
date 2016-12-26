@@ -54,13 +54,11 @@ public class DynamicLineAndTimeSeriesChart extends SubSystemDependentJFrame impl
 
     /**
      * Constructs a new dynamic chart application.
-     *
-     * @param title  the frame title.
      */
-    public DynamicLineAndTimeSeriesChart(final String title) {
+    public DynamicLineAndTimeSeriesChart() {
 
         super(EnumSet.of(SubSystem.SubSystemType.INSTRUMENTS));
-        this.setTitle(title);
+        this.setTitle("Navigation Data");
         this.setLocation(10,300);
         this.yawSeries = new TimeSeries("Yaw");
         this.pitchSeries = new TimeSeries("Pitch");
