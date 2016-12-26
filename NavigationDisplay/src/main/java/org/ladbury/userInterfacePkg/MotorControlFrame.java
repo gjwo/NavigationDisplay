@@ -137,7 +137,10 @@ class MotorControlFrame extends JFrame {
 	}
 	
 	private void handleStop() {
+		speed = 0;
+
 		try {
+			rda.setSpeed(speed);
 			rda.stop();
 			updateLabels();
 		} catch (RemoteException e) {
