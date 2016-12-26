@@ -57,8 +57,9 @@ public class NavClientGUI extends Applet implements Runnable,UpdateListener {
 
     // NavClientGUI Class Constructor
     //----------------------------------------------------------------------
-	public NavClientGUI() {
-
+	public NavClientGUI()
+    {
+        NavClientMain = this;
         frame = new UiFrame("Graham's Navigation client");
 
         //Pack frames that have useful preferred size info, e.g. from their layout

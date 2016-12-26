@@ -28,13 +28,20 @@ public class RMITest extends Thread
     
     RMITest(Registry reg) throws RemoteException, NotBoundException
     {
-        this.registry = reg;
-        instruments = (RemoteInstruments) reg.lookup("Instruments");
-        navDisplay = new NavDisplay();
-		this.navClientGUI = new NavClientGUI(4);
-        NavClientGUI.setNavClientMain(navClientGUI); 
+        registry = reg;
+
+        this.navClientGUI = new NavClientGUI(4);
         navClientGUI.init();
         navClientGUI.start();
+
+        RemoteMain main = (RemoteMain)reg.lookup("Main");
+
+        System.out.println(Arrays.toString(main.getSubSystems().toArray()));
+
+        main.start(EnumSet.of(SubSystem.SubSystemType.INSTRUMENTS, SubSystem.SubSystemType.DRIVE_ASSEMBLY));
+
+        instruments = (RemoteInstruments) reg.lookup("Instruments");
+        navDisplay = new NavDisplay();
         this.start();
     }
 
@@ -68,9 +75,6 @@ public class RMITest extends Thread
         Registry reg = LocateRegistry.getRegistry(args[0], Registry.REGISTRY_PORT);
         System.out.println(Arrays.toString(reg.list()));
 
-        RemoteMain main = (RemoteMain)reg.lookup("Main");
-
-        main.start(EnumSet.of(SubSystem.SubSystemType.INSTRUMENTS, SubSystem.SubSystemType.DRIVE_ASSEMBLY));
 
         System.out.println(Arrays.toString(reg.list()));
 

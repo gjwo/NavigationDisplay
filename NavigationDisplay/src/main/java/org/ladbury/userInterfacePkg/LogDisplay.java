@@ -7,9 +7,8 @@ import logging.RemoteLog;
 import java.awt.*;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 public class LogDisplay extends Thread
@@ -18,7 +17,8 @@ public class LogDisplay extends Thread
 	private TextArea textArea;
 	private UiFrame parent;
 	private int count;
-	private ArrayList<LogEntry> entries;
+	private ArrayList<LogEntry> remoteEntries;
+
 	
 	static public LogDisplay getLogDisplay(){return logDisplay;}
 	
@@ -38,11 +38,11 @@ public class LogDisplay extends Thread
 		count = 0;
         try
         {
-            entries = ((RemoteLog)RMITest.registry.lookup("Log")).getEntries();
+            remoteEntries = ((RemoteLog)RMITest.registry.lookup("Log")).getEntries();
         } catch (RemoteException | NotBoundException e)
         {
             e.printStackTrace();
-            entries = new ArrayList<>();
+            remoteEntries = new ArrayList<>();
         }
         this.start();
     }
@@ -96,7 +96,12 @@ public class LogDisplay extends Thread
 
         while(!Thread.interrupted())
         {
-            if(entries.size()-1 == count )
+
+            try
+            {
+                remoteEntries = ((RemoteLog)RMITest.registry.lookup("Log")).getEntries();
+            } catch (RemoteException | NotBoundException ignored) {}
+            if(remoteEntries.size()-1 == count )
             {
                 try
                 {
@@ -104,11 +109,12 @@ public class LogDisplay extends Thread
                 } catch (InterruptedException ignored) {}
             } else
             {
-                for(int i = count; i<entries.size(); i++)
+                textArea.setText("");
+                for(LogEntry entry: remoteEntries)
                 {
-                    displayLog(entries.get(i).toString());
+                    displayLog(entry.toString());
                     newline();
-                    count = i;
+                    count = remoteEntries.size() -1;
                 }
             }
         }
