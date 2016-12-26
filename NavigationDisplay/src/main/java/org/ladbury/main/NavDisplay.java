@@ -28,14 +28,12 @@ public class NavDisplay {
 		this.compass = new InstrumentCompass("Compass");
 		compass.setLocation(300, 10);
 		this.cube = new CubeFrame();
-		new MainFrame(cube, 256, 256).setLocation(10, 10);;	
+		//new MainFrame(cube, 256, 256).setLocation(10, 10);;
 
 	}
 
 	public void initDisplay()
 	{
-        dynamicGraph.pack();
-        dynamicGraph.setVisible(true);
         compass.pack();
         //RefineryUtilities.centerFrameOnScreen(compass);
         compass.setVisible(true);	        

@@ -1,6 +1,9 @@
 package org.ladbury.chartingPkg;
 
 import dataTypes.TimestampedData3f;
+import inertialNavigation.Instruments;
+import inertialNavigation.RemoteInstruments;
+import main.RemoteMain;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -12,27 +15,42 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.*;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.ApplicationFrame;
+import org.ladbury.mainGUI.MainGUI;
+import subsystems.SubSystem;
+import subsystems.SubSystemState;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.Date;
+import java.util.EnumSet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An example to show how we can create a dynamic chart.
-*/
-public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
+ */
+public class DynamicLineAndTimeSeriesChart extends SubSystemDependentJFrame implements Runnable
 {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3069370784580469812L;
+     *
+     */
+    private static final long serialVersionUID = -3069370784580469812L;
 
-	/** The time series data. */
-	private final TimeSeries yawSeries;
-	private final TimeSeries pitchSeries;
-	private final TimeSeries rollSeries;
-	private long startTime;
+    /** The time series data. */
+    private final TimeSeries yawSeries;
+    private final TimeSeries pitchSeries;
+    private final TimeSeries rollSeries;
+    private long startTime;
+
+    private Thread thread;
+    private RemoteInstruments instruments;
 
     /**
      * Constructs a new dynamic chart application.
@@ -41,14 +59,27 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
      */
     public DynamicLineAndTimeSeriesChart(final String title) {
 
-        super(title);
+        super(EnumSet.of(SubSystem.SubSystemType.INSTRUMENTS));
+        this.setTitle(title);
         this.setLocation(10,300);
         this.yawSeries = new TimeSeries("Yaw");
         this.pitchSeries = new TimeSeries("Pitch");
         this.rollSeries = new TimeSeries("Roll");
 
+        if(!isDependenciesMet()) return;
+
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+        try
+        {
+            this.instruments = (RemoteInstruments) MainGUI.registry.lookup("Instruments");
+        } catch (RemoteException | NotBoundException e)
+        {
+            e.printStackTrace();
+        }
+
         final JFreeChart chart = createChart();
-        
+
         chart.setBackgroundPaint(Color.LIGHT_GRAY);						//Sets background colour of chart       
         final JPanel content = new JPanel(new BorderLayout());			//Created JPanel to show graph on screen
         final ChartPanel chartPanel = new ChartPanel(chart); 			//Created a ChartPanel for chart area
@@ -56,17 +87,29 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 500)); 	//Sets the size of whole window (JPanel)
         setContentPane(content);         								//Puts the whole content on a Frame
         startTime = System.currentTimeMillis();
+
+        this.pack();
+        this.setVisible(true);
+        thread = new Thread(this);
+        thread.start();
+        this.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                thread.interrupt();
+            }});
     }
 
-	/**
-	 * addReading	-	Add a new reading to the circular array
-	 * @param reading new data to be plotted
-	 */
-	public void addReading(TimestampedData3f reading)
-	{
+    /**
+     * addReading	-	Add a new reading to the circular array
+     * @param reading new data to be plotted
+     */
+    public void addReading(TimestampedData3f reading)
+    {
         plotNav(reading);
-	}
-    
+    }
+
     private XYDataset createDataset(final TimeSeries series) {
         return new TimeSeriesCollection(series);
     }
@@ -139,15 +182,15 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
     	 * boolean urls)
     	 * Creates and returns a time series chart.
     	 */
-    	final XYDataset dataset = this.createDataset(yawSeries);
+        final XYDataset dataset = this.createDataset(yawSeries);
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
-            "Navigation Data",
-            "Time",
-            "Angle (degrees)",
-            dataset,
-            true,
-            true,
-            false
+                "Navigation Data",
+                "Time",
+                "Angle (degrees)",
+                dataset,
+                true,
+                true,
+                false
         );
 
         final XYPlot plot = result.getXYPlot();
@@ -175,7 +218,7 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
    /* public void actionPerformed(final ActionEvent e) {
     	plotNav( this.navData.get(0)); //get the last reading from the circular array
     }*/
-    
+
     @SuppressWarnings("JavadocReference")
     public void plotNav(TimestampedData3f reading) {
         final Millisecond thisMilliSec = new Millisecond(new Date(startTime + reading.getTime()/1000000L)); // construct epoch relative time using a fixed time.
@@ -183,4 +226,16 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
         this.pitchSeries.addOrUpdate(thisMilliSec, reading.getY());
         this.rollSeries.addOrUpdate(thisMilliSec, reading.getZ());
     }
-}  
+
+    @Override
+    public void run()
+    {
+        while(!Thread.interrupted())
+            try
+            {
+                this.addReading(new TimestampedData3f(instruments.getTaitBryanAnglesD()));
+                //System.out.println("RMI data: " + instruments.getTaitBryanAnglesD().toString());
+                TimeUnit.MILLISECONDS.sleep(20);
+            } catch (InterruptedException | RemoteException ignored) {}
+    }
+}

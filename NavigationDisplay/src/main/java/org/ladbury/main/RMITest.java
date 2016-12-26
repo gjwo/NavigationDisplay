@@ -11,6 +11,7 @@ import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 import dataTypes.TimestampedData3f;
 import main.RemoteMain;
+import org.ladbury.mainGUI.MainGUI;
 import subsystems.SubSystem;
 
 /**
@@ -73,6 +74,7 @@ public class RMITest extends Thread
         System.setProperty("java.rmi.server.hostname", args[0]) ;
 
         Registry reg = LocateRegistry.getRegistry(args[0], Registry.REGISTRY_PORT);
+        MainGUI.registry = reg;
         System.out.println(Arrays.toString(reg.list()));
 
 

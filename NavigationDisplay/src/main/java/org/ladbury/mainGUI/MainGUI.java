@@ -7,19 +7,24 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import org.ladbury.chartingPkg.CubeFrame;
+import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
+import org.ladbury.chartingPkg.InstrumentCompass;
+import org.ladbury.userInterfacePkg.MotorControlFrame;
+
 /**
  * NavigationDisplay - org.ladbury.main
  * Created by MAWood on 26/12/2016.
  */
 public class MainGUI extends JFrame
 {
-    public final Registry registry;
+    public static Registry registry;
 
 
     private MainGUI(Registry registry)
     {
         super("Tank Control");
-        this.registry = registry;
+        MainGUI.registry = registry;
         this.setSize(1200,800);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setResizable(false);
@@ -51,15 +56,40 @@ public class MainGUI extends JFrame
     {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu system = new JMenu("System");
+        // System menu
+        JMenu systemMenu = new JMenu("System");
 
         JMenuItem exit = new JMenuItem("Exit");
         exit.setToolTipText("Exit the application.");
         exit.addActionListener(a -> System.exit(0));
 
-        system.add(exit);
+        systemMenu.add(exit);
 
-        menuBar.add(system);
+        // Graph menu
+        JMenu graphMenu = new JMenu("Graphing");
+
+        JMenuItem imuGraph = new JMenuItem("IMU Graph");
+        imuGraph.addActionListener(a -> new DynamicLineAndTimeSeriesChart("Navigation Data"));
+        graphMenu.add(imuGraph);
+
+        JMenuItem cube = new JMenuItem("Orientation Cube");
+        cube.addActionListener(a -> new CubeFrame());
+        graphMenu.add(cube);
+
+        JMenuItem compass = new JMenuItem("Compass");
+        compass.addActionListener(a -> new InstrumentCompass("Compass"));
+        graphMenu.add(compass);
+
+        // Control menu
+        JMenu controlMenu = new JMenu("Control");
+
+        JMenuItem daControl = new JMenuItem("Drive Assembly Control");
+        daControl.addActionListener(a -> new MotorControlFrame());
+        controlMenu.add(daControl);
+
+        menuBar.add(systemMenu);
+        menuBar.add(graphMenu);
+        menuBar.add(controlMenu);
 
         this.setJMenuBar(menuBar);
     }

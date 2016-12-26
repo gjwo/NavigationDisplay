@@ -41,7 +41,12 @@ package org.ladbury.chartingPkg;
 
 
 import java.awt.Color;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.util.EnumSet;
+import java.util.concurrent.TimeUnit;
 
+import inertialNavigation.RemoteInstruments;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CompassPlot;
@@ -49,9 +54,13 @@ import org.jfree.data.general.DefaultValueDataset;
 import org.jfree.data.general.ValueDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
+import org.ladbury.mainGUI.MainGUI;
+import subsystems.SubSystem;
 
 /** The available needle types. */
-public class InstrumentCompass extends ApplicationFrame {
+public class InstrumentCompass extends SubSystemDependentJFrame implements Runnable
+{
+
     enum NEEDLE_TYPES
     {
     	ARROW1(0,"Arrow1"),
@@ -74,6 +83,9 @@ public class InstrumentCompass extends ApplicationFrame {
 	private final ChartPanel chartPanel;
 	private CompassPlot plot;
 
+    private Thread thread;
+    private RemoteInstruments instruments;
+
 	/**
      * InstrumentCompass	-	Constructor
      *
@@ -81,8 +93,8 @@ public class InstrumentCompass extends ApplicationFrame {
      */
     public InstrumentCompass(final String title)
     {
-
-        super(title);
+        super(EnumSet.of(SubSystem.SubSystemType.INSTRUMENTS));
+        this.setTitle("Compass");
 
         dataset = new DefaultValueDataset(new Double(45.0)); //Create the dataset (single value)
         chart = createChart(dataset);	//Create the chart
@@ -92,6 +104,33 @@ public class InstrumentCompass extends ApplicationFrame {
         chartPanel.setEnforceFileExtensions(false);
 
         setContentPane(chartPanel); //add the panel to the ApplicationFrame
+        if(!isDependenciesMet()) return;
+
+        try
+        {
+            this.instruments = (RemoteInstruments) MainGUI.registry.lookup("Instruments");
+        } catch (RemoteException | NotBoundException e)
+        {
+            e.printStackTrace();
+        }
+
+        thread = new Thread(this);
+        thread.start();
+
+        this.setSize(300,300);
+        this.setVisible(true);
+    }
+
+    @Override
+    public void run()
+    {
+        while(!Thread.interrupted())
+            try
+            {
+                this.setHeading(instruments.getHeading());
+                //System.out.println("RMI data: " + instruments.getTaitBryanAnglesD().toString());
+                TimeUnit.MILLISECONDS.sleep(20);
+            } catch (InterruptedException | RemoteException ignored) {}
     }
     
 	/**

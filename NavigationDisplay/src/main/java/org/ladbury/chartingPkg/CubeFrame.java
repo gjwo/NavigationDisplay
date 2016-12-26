@@ -30,22 +30,79 @@ package org.ladbury.chartingPkg;
  * redistribute the Software for such purposes.
  */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.util.EnumSet;
 import java.util.Enumeration;
+import java.util.concurrent.TimeUnit;
 
 import javax.media.j3d.*;
 
 import com.sun.j3d.utils.geometry.ColorCube;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 import dataTypes.Data3f;
+import dataTypes.TimestampedData3f;
+import inertialNavigation.RemoteInstruments;
+import org.ladbury.mainGUI.MainGUI;
+import subsystems.SubSystem;
 
 //   CubeFrame renders a single, rotated cube.
 
-public class CubeFrame extends Applet {
+public class CubeFrame extends SubSystemDependentJFrame implements Runnable
+{
 
     public SimpleBehavior myRotationBehavior;
+    private Thread thread;
+    private RemoteInstruments instruments;
+
+    public CubeFrame()
+    {
+        super(EnumSet.of(SubSystem.SubSystemType.INSTRUMENTS));
+        if(!isDependenciesMet()) return;
+        setLayout(new BorderLayout());
+        Canvas3D canvas3D = new Canvas3D(SimpleUniverse.getPreferredConfiguration());
+        add("Center", canvas3D);
+
+        BranchGroup scene = createSceneGraph();
+
+        // SimpleUniverse is a Convenience Utility class
+        SimpleUniverse simpleU = new SimpleUniverse(canvas3D);
+
+        // This will move the ViewPlatform back a bit so the
+        // objects in the scene can be viewed.
+        simpleU.getViewingPlatform().setNominalViewingTransform();
+
+        simpleU.addBranchGraph(scene);
+        this.setSize(300,300);
+        this.setVisible(true);
+
+
+        try
+        {
+            this.instruments = (RemoteInstruments) MainGUI.registry.lookup("Instruments");
+        } catch (RemoteException | NotBoundException e)
+        {
+            e.printStackTrace();
+        }
+
+        thread = new Thread(this);
+        thread.start();
+        this.repaint();
+        canvas3D.repaint();
+    } // end of SimpleBehaviorApp (constructor)
+    @Override
+    public void run()
+    {
+        while(!Thread.interrupted())
+            try
+            {
+                this.myRotationBehavior.setAngles(instruments.getTaitBryanAnglesD());
+                //System.out.println("RMI data: " + instruments.getTaitBryanAnglesD().toString());
+                TimeUnit.MILLISECONDS.sleep(20);
+            } catch (InterruptedException | RemoteException ignored) {}
+    }
 
     public class SimpleBehavior extends Behavior {
 
@@ -103,22 +160,6 @@ public class CubeFrame extends Applet {
 
     // Create a simple scene and attach it to the virtual universe
 
-    public CubeFrame() {
-        setLayout(new BorderLayout());
-        Canvas3D canvas3D = new Canvas3D(SimpleUniverse.getPreferredConfiguration());
-        add("Center", canvas3D);
-
-        BranchGroup scene = createSceneGraph();
-
-        // SimpleUniverse is a Convenience Utility class
-        SimpleUniverse simpleU = new SimpleUniverse(canvas3D);
-
-        // This will move the ViewPlatform back a bit so the
-        // objects in the scene can be viewed.
-        simpleU.getViewingPlatform().setNominalViewingTransform();
-
-        simpleU.addBranchGraph(scene);
-    } // end of SimpleBehaviorApp (constructor)
 
     //  The following allows this to be run as an application
     //  as well as an applet

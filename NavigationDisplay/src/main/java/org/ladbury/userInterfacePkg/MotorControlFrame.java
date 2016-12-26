@@ -3,19 +3,21 @@ package org.ladbury.userInterfacePkg;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
+import java.awt.event.WindowEvent;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import devices.driveAssembly.RemoteDriveAssembly;
+import main.RemoteMain;
+import org.ladbury.mainGUI.MainGUI;
+import subsystems.SubSystem;
+import subsystems.SubSystemState;
 
-class MotorControlFrame extends JFrame {
+public class MotorControlFrame extends JFrame {
 
 	/**
 	 * 
@@ -48,8 +50,14 @@ class MotorControlFrame extends JFrame {
 		this.setVisible(true);
 		
 		try {
-			Registry reg = LocateRegistry.getRegistry("192.168.1.123");
-			rda = (RemoteDriveAssembly) reg.lookup("DriveAssembly");
+			RemoteMain rm = (RemoteMain) MainGUI.registry.lookup("Main");
+			if(rm.getSubSystemState(SubSystem.SubSystemType.DRIVE_ASSEMBLY) != SubSystemState.RUNNING)
+			{
+				JOptionPane.showMessageDialog(this, "Drive assembly sub system is not running");
+                this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+				return;
+			}
+			rda = (RemoteDriveAssembly) MainGUI.registry.lookup("DriveAssembly");
 		} catch (RemoteException | NotBoundException e) {
 			e.printStackTrace();
 		}
