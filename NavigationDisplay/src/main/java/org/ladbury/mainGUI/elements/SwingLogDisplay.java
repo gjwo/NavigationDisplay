@@ -8,8 +8,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultCaret;
 
-import org.ladbury.mainGUI.UiStyle;
-
 import java.awt.*;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -79,7 +77,7 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
         textArea.setColumns(80);
         textArea.setCursor(null);
         textArea.setEditable(false);
-        textArea.setFont(UiStyle.NORMAL_FONT);
+        textArea.setFont(new Font("SansSerif", Font.PLAIN, 10));
         textArea.setRows(20);
         DefaultCaret caret = (DefaultCaret)textArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);

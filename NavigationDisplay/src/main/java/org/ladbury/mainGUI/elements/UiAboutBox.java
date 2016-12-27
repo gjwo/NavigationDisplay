@@ -33,8 +33,8 @@ public class UiAboutBox
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String product = "Navigation Client";
-	private static final String version = "0.1";
-	private static final String copyright = "Copyright G.J.Wood (c) 2016";
+	private static final String version = "1.1";
+	private static final String copyright = "Copyright G.J.Wood/M.A.Wood (c) 2016";
 	private static final String comments = "Displays navigation data from a sensor on a separate computer";
     
 	private final JPanel panel1 = new JPanel();

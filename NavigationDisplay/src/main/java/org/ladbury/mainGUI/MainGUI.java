@@ -9,6 +9,7 @@ import java.rmi.registry.Registry;
 
 import org.ladbury.mainGUI.elements.SwingLogDisplay;
 import org.ladbury.mainGUI.elements.SystemManagerToolBar;
+import org.ladbury.mainGUI.elements.UiAboutBox;
 import org.ladbury.mainGUI.instrumentFrames.CubeFrame;
 import org.ladbury.mainGUI.instrumentFrames.DynamicLineAndTimeSeriesChart;
 import org.ladbury.mainGUI.instrumentFrames.InstrumentCompass;
@@ -89,11 +90,19 @@ public class MainGUI extends JFrame
         daControl.addActionListener(a -> new MotorControlFrame());
         controlMenu.add(daControl);
 
+        // Help menu
+        JMenu helpMenu = new JMenu("Help)");
+        JMenuItem about = new JMenuItem("About");
+        about.addActionListener(a -> new UiAboutBox(this));
+        helpMenu.add(about);
+        
         menuBar.add(systemMenu);
         menuBar.add(graphMenu);
         menuBar.add(controlMenu);
+        menuBar.add(helpMenu);
 
         this.setJMenuBar(menuBar);
+        
     }
 
     public static void main(String[] args) throws RemoteException
