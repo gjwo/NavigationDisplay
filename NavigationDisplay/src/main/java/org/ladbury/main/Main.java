@@ -11,8 +11,13 @@ public class Main
 
 	public static void main(String[] args)
 	{
+        if (args.length != 1)
+        {
+            System.out.println("Usage: java NavClient <hostname>");
+            System.out.println("Use IP address if no name available e.g. 192.168.1.123");
+            return;
+        }
         System.setProperty("java.rmi.server.hostname", args[0]) ;
-
         Registry reg;
 		try
 		{
