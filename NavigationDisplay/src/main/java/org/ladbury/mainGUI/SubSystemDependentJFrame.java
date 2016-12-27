@@ -1,4 +1,4 @@
-package org.ladbury.chartingPkg;
+package org.ladbury.mainGUI;
 
 import main.RemoteMain;
 import org.ladbury.mainGUI.MainGUI;

@@ -37,20 +37,20 @@ public class UiAboutBox
 	private static final String copyright = "Copyright G.J.Wood (c) 2016";
 	private static final String comments = "Displays navigation data from a sensor on a separate computer";
     
-	JPanel panel1 = new JPanel();
-    JPanel panel2 = new JPanel();
-    JPanel insetsPanel1 = new JPanel();
-    JPanel insetsPanel3 = new JPanel();
-    JButton button1 = new JButton();
+	private final JPanel panel1 = new JPanel();
+    private final JPanel panel2 = new JPanel();
+    private final JPanel insetsPanel1 = new JPanel();
+    private final JPanel insetsPanel3 = new JPanel();
+    private final JButton button1 = new JButton();
     JLabel imageLabel = new JLabel();
-    JLabel label1 = new JLabel();
-    JLabel label2 = new JLabel();
-    JLabel label3 = new JLabel();
-    JLabel label4 = new JLabel();
-    BorderLayout borderLayout1 = new BorderLayout();
-    BorderLayout borderLayout2 = new BorderLayout();
-    FlowLayout flowLayout1 = new FlowLayout();
-    GridLayout gridLayout1 = new GridLayout();
+    private final JLabel label1 = new JLabel();
+    private final JLabel label2 = new JLabel();
+    private final JLabel label3 = new JLabel();
+    private final JLabel label4 = new JLabel();
+    private final BorderLayout borderLayout1 = new BorderLayout();
+    private final BorderLayout borderLayout2 = new BorderLayout();
+    private final FlowLayout flowLayout1 = new FlowLayout();
+    private final GridLayout gridLayout1 = new GridLayout();
 
     public UiAboutBox(Frame parent) {
         super(parent);
@@ -65,7 +65,8 @@ public class UiAboutBox
     }
 
     /**Component initialisation*/
-    private void jbInit() throws Exception {
+    private void jbInit()
+    {
     	//imageLabel.setIcon(new ImageIcon(UiAboutBox.class.getResource("[Your Image]")));
         this.setTitle("About");
         setResizable(false);

@@ -1,4 +1,4 @@
-package org.ladbury.chartingPkg;
+package org.ladbury.mainGUI.instrumentFrames;
 
 /*
  *  @(#)CubeFrame.java 1.0 98/11/09 15:07:04
@@ -32,6 +32,8 @@ package org.ladbury.chartingPkg;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.EnumSet;
@@ -43,8 +45,8 @@ import javax.media.j3d.*;
 import com.sun.j3d.utils.geometry.ColorCube;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 import dataTypes.Data3f;
-import dataTypes.TimestampedData3f;
 import inertialNavigation.RemoteInstruments;
+import org.ladbury.mainGUI.SubSystemDependentJFrame;
 import org.ladbury.mainGUI.MainGUI;
 import subsystems.SubSystem;
 
@@ -54,7 +56,6 @@ public class CubeFrame extends SubSystemDependentJFrame implements Runnable
 {
 
     public SimpleBehavior myRotationBehavior;
-    private Thread thread;
     private RemoteInstruments instruments;
 
     public CubeFrame()
@@ -87,7 +88,14 @@ public class CubeFrame extends SubSystemDependentJFrame implements Runnable
             e.printStackTrace();
         }
 
-        thread = new Thread(this);
+        Thread thread = new Thread(this);
+        this.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                thread.interrupt();
+            }});
         thread.start();
         this.repaint();
         canvas3D.repaint();
@@ -106,8 +114,8 @@ public class CubeFrame extends SubSystemDependentJFrame implements Runnable
 
     public class SimpleBehavior extends Behavior {
 
-        private TransformGroup targetTG;
-        private Transform3D rotation = new Transform3D();
+        private final TransformGroup targetTG;
+        private final Transform3D rotation = new Transform3D();
         private Data3f angles;
 
         SimpleBehavior(TransformGroup targetTG) {

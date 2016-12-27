@@ -22,16 +22,15 @@ public class RMITest extends Thread
 {
 	private final NavDisplay navDisplay;
     private final RemoteInstruments instruments;
-    private final NavClientGUI navClientGUI;
 
     public static Registry registry;
 
     
-    RMITest(Registry reg) throws RemoteException, NotBoundException
+    private RMITest(Registry reg) throws RemoteException, NotBoundException
     {
         registry = reg;
 
-        this.navClientGUI = new NavClientGUI(4);
+        NavClientGUI navClientGUI = new NavClientGUI(4);
         navClientGUI.init();
         navClientGUI.start();
 

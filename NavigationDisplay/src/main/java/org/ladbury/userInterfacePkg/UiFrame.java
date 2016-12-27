@@ -2,14 +2,11 @@ package org.ladbury.userInterfacePkg;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Point;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
-import java.io.Serializable;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -17,9 +14,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
+import org.ladbury.mainGUI.instrumentFrames.DynamicLineAndTimeSeriesChart;
 import org.ladbury.main.NavClientGUI;
-import org.ladbury.userInterfacePkg.LogDisplay.*;
+import org.ladbury.mainGUI.motorFrames.MotorControlFrame;
 
 public class UiFrame
     extends JFrame {
@@ -30,26 +27,26 @@ public class UiFrame
 
     // variables
     private JPanel contentPane;
-    private BorderLayout borderLayout1 = new BorderLayout();
-    private JMenuBar jMenuBar1 = new JMenuBar();
+    private final BorderLayout borderLayout1 = new BorderLayout();
+    private final JMenuBar jMenuBar1 = new JMenuBar();
 
-    private JMenu jMenuFile = new JMenu("File");
+    private final JMenu jMenuFile = new JMenu("File");
     private JMenuItem jMenuFileOpen = new JMenuItem("Open");
     private JMenuItem jMenuFileSave = new JMenuItem("Save");
     
-    private JMenuItem jMenuFileMotorControl = new JMenuItem("Motor Control");
+    private final JMenuItem jMenuFileMotorControl = new JMenuItem("Motor Control");
     
-    private JMenuItem jMenuFileExit = new JMenuItem("Exit");
+    private final JMenuItem jMenuFileExit = new JMenuItem("Exit");
 
     
-    private JMenu jMenuChart = new JMenu("Chart");
-    private JMenuItem jMenuChartLine = new JMenuItem("Line 2D");
+    private final JMenu jMenuChart = new JMenu("Chart");
+    private final JMenuItem jMenuChartLine = new JMenuItem("Line 2D");
 //    private JMenuItem jMenuChartHistogram = new JMenuItem("Histogram");
 //    private JMenuItem jMenuChartScatter = new JMenuItem("Scatter");   
 
-    private JMenu jMenuHelp = new JMenu("Help");
-    private JMenuItem jMenuHelpAbout = new JMenuItem("About..");
-    private LogDisplay logDisplay;
+    private final JMenu jMenuHelp = new JMenu("Help");
+    private final JMenuItem jMenuHelpAbout = new JMenuItem("About..");
+    private final LogDisplay logDisplay;
 
     private FileDialog fileDialogue = null;
 	private String 	windowTitle = null;
@@ -75,7 +72,8 @@ public class UiFrame
     //
     // Component initialisation
     //
-    private void jbInit() throws Exception {
+    private void jbInit()
+    {
         // Create a content pane
         contentPane = (JPanel)this.getContentPane();
         contentPane.setLayout(borderLayout1);
@@ -94,32 +92,24 @@ public class UiFrame
 
     private void createFileMenu(){
     	
-    	jMenuFileMotorControl.addActionListener(e -> jMenuFileMotorControl_actionPerformed(e));
+    	jMenuFileMotorControl.addActionListener(this::jMenuFileMotorControl_actionPerformed);
     	jMenuFile.add(jMenuFileMotorControl);
         jMenuFile.add(jMenuFileExit);
 
-        jMenuFileExit.addActionListener(e-> jMenuFileExit_actionPerformed(e));
+        jMenuFileExit.addActionListener(this::jMenuFileExit_actionPerformed);
         jMenuBar1.add(jMenuFile);
     }
 
     private void createChartMenu(){
         // add sub items and their actions    
     	
-        jMenuChartLine.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jMenuChartLine_actionPerformed(e);
-            }
-        });
+        jMenuChartLine.addActionListener(this::jMenuChartLine_actionPerformed);
         jMenuChart.add(jMenuChartLine);
     }
    
     private void createHelpMenu(){
         // add sub items and their actions      
-        jMenuHelpAbout.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jMenuHelpAbout_actionPerformed(e);
-            }
-        });
+        jMenuHelpAbout.addActionListener(this::jMenuHelpAbout_actionPerformed);
         jMenuHelp.add(jMenuHelpAbout);
         // add the menu to the menu bar
         jMenuBar1.add(jMenuHelp);
@@ -170,18 +160,18 @@ public class UiFrame
     //
     //File | Exit action performed
     //
-    public void jMenuFileExit_actionPerformed(ActionEvent e) {
+    private void jMenuFileExit_actionPerformed(ActionEvent e) {
         NavClientGUI.getMain().stop();
     }
     
-    public void jMenuFileMotorControl_actionPerformed(ActionEvent e) 
+    private void jMenuFileMotorControl_actionPerformed(ActionEvent e)
     {
     	new MotorControlFrame();
     }
     //
     //Chart Line action performed
     //
-    public void jMenuChartLine_actionPerformed(ActionEvent e) {
+    private void jMenuChartLine_actionPerformed(ActionEvent e) {
     	dynamicGraph = new DynamicLineAndTimeSeriesChart();
         dynamicGraph.pack();
         dynamicGraph.setVisible(true);
@@ -193,7 +183,7 @@ public class UiFrame
       //
       //Help About action performed
       //
-      public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
+      private void jMenuHelpAbout_actionPerformed(ActionEvent e) {
           UiAboutBox dlg = new UiAboutBox(this);
           Dimension dlgSize = dlg.getPreferredSize();
           Dimension frmSize = getSize();

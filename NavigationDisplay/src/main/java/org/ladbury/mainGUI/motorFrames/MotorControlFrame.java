@@ -1,4 +1,4 @@
-package org.ladbury.userInterfacePkg;
+package org.ladbury.mainGUI.motorFrames;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -6,8 +6,6 @@ import java.awt.HeadlessException;
 import java.awt.event.WindowEvent;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
 import javax.swing.*;
 
@@ -26,17 +24,11 @@ public class MotorControlFrame extends JFrame {
 	
 	private JLabel speedLabel;
 	private JLabel angleLabel;
-	
-	private JButton forwards;
-	private JButton backwards;
-	private JButton left;
-	private JButton right;
-	private JButton stop;
-	
-	private float angle;
+
+    private float angle;
 	private float speed;
 	
-	private JPanel[][] grid = new JPanel[3][3];
+	private final JPanel[][] grid = new JPanel[3][3];
 	
 	private RemoteDriveAssembly rda;
 	
@@ -85,11 +77,11 @@ public class MotorControlFrame extends JFrame {
 	}
 	
 	private void createButtons() {
-		forwards = 	new JButton("Faster");
-		backwards = new JButton("Slower");
-		left = 		new JButton("Left");
-		right = 	new JButton("Right");
-		stop = 		new JButton("Stop");
+        JButton forwards = new JButton("Faster");
+        JButton backwards = new JButton("Slower");
+        JButton left = new JButton("Left");
+        JButton right = new JButton("Right");
+        JButton stop = new JButton("Stop");
 
 		forwards.addActionListener	(e -> handleForwards());
 		backwards.addActionListener	(e -> handleBackwards());

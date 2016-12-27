@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.util.concurrent.TimeUnit;
 
 
-import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
+import org.ladbury.mainGUI.instrumentFrames.DynamicLineAndTimeSeriesChart;
 import org.ladbury.userInterfacePkg.LogDisplay;
 import org.ladbury.userInterfacePkg.UiFrame;
 
@@ -30,9 +30,9 @@ public class NavClientGUI extends Applet implements Runnable,UpdateListener {
 	private static final long serialVersionUID = 1L;
 	public enum RunState {
 		IDLE, OPEN_FILE, PROCESS_FILE, PROCESS_READINGS, SAVE_FILE, PROCESS_EDGES, PROCESS_EVENTS, STOP
-	};   
-	
-    private boolean		packFrame = false;
+	}
+
+    private final boolean		packFrame = false;
     private	String 		displayString = null;
 	private Thread 		threadNavGui = null; //Thread object for the applet
 	private RunState	state = RunState.IDLE;
@@ -46,7 +46,7 @@ public class NavClientGUI extends Applet implements Runnable,UpdateListener {
     
     // variables for storing data from Navigation Client
     private volatile boolean	dataReady;
-    private volatile CircularArrayRing <TimestampedData3f> navData;
+    private final CircularArrayRing <TimestampedData3f> navData;
     private	TimestampedData3f reading;
     private int debugLevel = 0;
 
@@ -84,11 +84,11 @@ public class NavClientGUI extends Applet implements Runnable,UpdateListener {
                           (screenSize.height - frameSize.height) / 2);
         frame.setVisible(true);
 
-        displayString = new String("no line");
+        displayString = "no line";
 
         //file = new Files();
         
-        this.navData = new CircularArrayRing <TimestampedData3f>(50);
+        this.navData = new CircularArrayRing<>(50);
      }
 	public NavClientGUI(int debug) {
 		this();
@@ -112,13 +112,12 @@ public class NavClientGUI extends Applet implements Runnable,UpdateListener {
     //  { "Name", "Type", "Description" },
     //--------------------------------------------------------------------------
     public String[][] getParameterInfo() {
-        String[][] info = {
+        return new String[][]{
             {
             PARAM_readingsfile, "String",
             "The name of the input file"}
             ,
         };
-        return info;
     }
 
     // The init() method is called by the AWT when an applet is first loaded or
@@ -218,7 +217,7 @@ public class NavClientGUI extends Applet implements Runnable,UpdateListener {
         return (this.state);
     }
     public void display(String s) {
-        this.displayString = new String(s);
+        this.displayString = s;
         System.out.println(this.displayString);
         repaint();
     }

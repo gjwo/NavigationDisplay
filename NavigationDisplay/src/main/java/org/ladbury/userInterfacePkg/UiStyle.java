@@ -21,9 +21,9 @@ public class UiStyle {
 	public final static DateFormat timeFormat = new SimpleDateFormat("HH:mm");
 	public final static DateFormat dateFormat = new SimpleDateFormat("DD/MM/yy");
 	//static strings for forms
-	public static final String EMPTY = new String("<Empty>");
+	public static final String EMPTY = "<Empty>";
 	public static final String NONE = "<None>";
 	public static final String UNNAMED = "<Unnamed>";
 	public static final String CREATE_NEW_ENTRY = "Create a new entry";
-	public enum UiDialogueType {SINGLE_FORM, SINGLE_TABLE, TABBED_FORM, TABBED_TABLE};
+	public enum UiDialogueType {SINGLE_FORM, SINGLE_TABLE, TABBED_FORM, TABBED_TABLE}
 }

@@ -1,9 +1,7 @@
-package org.ladbury.chartingPkg;
+package org.ladbury.mainGUI.instrumentFrames;
 
 import dataTypes.TimestampedData3f;
-import inertialNavigation.Instruments;
 import inertialNavigation.RemoteInstruments;
-import main.RemoteMain;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -14,20 +12,16 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.*;
 import org.jfree.data.xy.XYDataset;
-import org.jfree.ui.ApplicationFrame;
+import org.ladbury.mainGUI.SubSystemDependentJFrame;
 import org.ladbury.mainGUI.MainGUI;
 import subsystems.SubSystem;
-import subsystems.SubSystemState;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;

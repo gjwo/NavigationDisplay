@@ -1,4 +1,4 @@
-package org.ladbury.mainGUI;
+package org.ladbury.mainGUI.elements;
 
 import logging.LogEntry;
 import logging.RemoteLog;
@@ -11,7 +11,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 /**
  * NavigationDisplay - org.ladbury.userInterfacePkg
@@ -19,10 +18,10 @@ import java.util.HashSet;
  */
 public class SwingLogDisplay extends JTextArea implements Runnable
 {
-    Thread thread;
+    private final Thread thread;
 
     private ArrayList<LogEntry> remoteEntries;
-    private ArrayList<LogEntry> localEntries;
+    private final ArrayList<LogEntry> localEntries;
     private int count;
     private final Registry registry;
 

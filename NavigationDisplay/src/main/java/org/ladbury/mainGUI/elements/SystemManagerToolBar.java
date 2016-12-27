@@ -1,4 +1,4 @@
-package org.ladbury.mainGUI;
+package org.ladbury.mainGUI.elements;
 
 import main.RemoteMain;
 import subsystems.SubSystem;
@@ -18,10 +18,10 @@ import java.util.Set;
  * NavigationDisplay - org.ladbury.mainGUI
  * Created by MAWood on 26/12/2016.
  */
-class SystemManagerToolBar extends JToolBar
+public class SystemManagerToolBar extends JToolBar
 {
     private final Registry registry;
-    SystemManagerToolBar(Registry registry) throws RemoteException, NotBoundException
+    public SystemManagerToolBar(Registry registry) throws RemoteException, NotBoundException
     {
         super();
         this.registry = registry;

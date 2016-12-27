@@ -1,15 +1,12 @@
 package org.ladbury.main;
 
-import org.jfree.ui.RefineryUtilities;
-import org.ladbury.chartingPkg.CubeFrame;
-import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
-import org.ladbury.chartingPkg.InstrumentCompass;
-
-import com.sun.j3d.utils.applet.MainFrame;
+import org.ladbury.mainGUI.instrumentFrames.CubeFrame;
+import org.ladbury.mainGUI.instrumentFrames.DynamicLineAndTimeSeriesChart;
+import org.ladbury.mainGUI.instrumentFrames.InstrumentCompass;
 
 import dataTypes.TimestampedData3f;
 
-public class NavDisplay {
+class NavDisplay {
     private final InstrumentCompass compass;
     private final DynamicLineAndTimeSeriesChart dynamicGraph;
     private final CubeFrame cube;

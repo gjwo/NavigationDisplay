@@ -1,4 +1,4 @@
-package org.ladbury.chartingPkg;
+package org.ladbury.mainGUI.instrumentFrames;
 
 /* ===========================================================
  * JFreeChart : a free chart library for the Java(tm) platform
@@ -41,6 +41,8 @@ package org.ladbury.chartingPkg;
 
 
 import java.awt.Color;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.EnumSet;
@@ -52,8 +54,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CompassPlot;
 import org.jfree.data.general.DefaultValueDataset;
 import org.jfree.data.general.ValueDataset;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
+import org.ladbury.mainGUI.SubSystemDependentJFrame;
 import org.ladbury.mainGUI.MainGUI;
 import subsystems.SubSystem;
 
@@ -78,10 +79,9 @@ public class InstrumentCompass extends SubSystemDependentJFrame implements Runna
     }
 
 	private static final long serialVersionUID = 1585778226074987267L;
-	private DefaultValueDataset dataset;
+	private final DefaultValueDataset dataset;
 	private JFreeChart chart;
 	private final ChartPanel chartPanel;
-	private CompassPlot plot;
 
     private Thread thread;
     private RemoteInstruments instruments;
@@ -114,6 +114,13 @@ public class InstrumentCompass extends SubSystemDependentJFrame implements Runna
 
         thread = new Thread(this);
         thread.start();
+        this.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                thread.interrupt();
+            }});
 
         this.setSize(300,300);
         this.setVisible(true);
@@ -139,7 +146,7 @@ public class InstrumentCompass extends SubSystemDependentJFrame implements Runna
      */
     private JFreeChart createChart(final ValueDataset dataset) 
     {
-        plot = new CompassPlot(dataset);
+        CompassPlot plot = new CompassPlot(dataset);
         plot.setSeriesNeedle(NEEDLE_TYPES.POINTER.value);
         plot.setSeriesPaint(0, Color.red);
         plot.setSeriesOutlinePaint(0, Color.red);
@@ -149,7 +156,7 @@ public class InstrumentCompass extends SubSystemDependentJFrame implements Runna
     
     public void setHeading(float heading)
     {
-    	this.dataset.setValue(new Double(heading));
+    	this.dataset.setValue((double) heading);
     }
 
     public JFreeChart getChart() {return chart;}

@@ -7,10 +7,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import org.ladbury.chartingPkg.CubeFrame;
-import org.ladbury.chartingPkg.DynamicLineAndTimeSeriesChart;
-import org.ladbury.chartingPkg.InstrumentCompass;
-import org.ladbury.userInterfacePkg.MotorControlFrame;
+import org.ladbury.mainGUI.elements.SwingLogDisplay;
+import org.ladbury.mainGUI.elements.SystemManagerToolBar;
+import org.ladbury.mainGUI.instrumentFrames.CubeFrame;
+import org.ladbury.mainGUI.instrumentFrames.DynamicLineAndTimeSeriesChart;
+import org.ladbury.mainGUI.instrumentFrames.InstrumentCompass;
+import org.ladbury.mainGUI.motorFrames.MotorControlFrame;
 
 /**
  * NavigationDisplay - org.ladbury.main

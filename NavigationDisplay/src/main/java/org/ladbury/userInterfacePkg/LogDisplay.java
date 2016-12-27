@@ -8,14 +8,13 @@ import java.awt.*;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 
 public class LogDisplay extends Thread
 {
 	private static LogDisplay logDisplay = null;
-	private TextArea textArea;
-	private UiFrame parent;
+	private final TextArea textArea;
+	private final UiFrame parent;
 	private int count;
 	private ArrayList<LogEntry> remoteEntries;
 
