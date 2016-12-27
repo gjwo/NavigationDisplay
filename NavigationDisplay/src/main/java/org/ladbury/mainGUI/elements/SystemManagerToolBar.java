@@ -20,7 +20,11 @@ import java.util.Set;
  */
 public class SystemManagerToolBar extends JToolBar
 {
-    private final Registry registry;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1974543340064805640L;
+	private final Registry registry;
     public SystemManagerToolBar(Registry registry) throws RemoteException, NotBoundException
     {
         super();
@@ -40,7 +44,11 @@ public class SystemManagerToolBar extends JToolBar
 
     class SubSystemController extends JPanel implements ActionListener, Runnable
     {
-        private final RemoteMain remoteMain;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 231011596168975507L;
+		private final RemoteMain remoteMain;
         private final SubSystem.SubSystemType subSystem;
         private final JButton button;
 
@@ -86,6 +94,7 @@ public class SystemManagerToolBar extends JToolBar
                             case IDLE:
                                 remoteMain.start(EnumSet.of(subSystem));
                                 break;
+                            default:    
                         }
                     } catch (RemoteException ignored) {}
                     updateState();

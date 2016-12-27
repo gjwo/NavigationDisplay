@@ -21,7 +21,8 @@ import org.ladbury.mainGUI.motorFrames.MotorControlFrame;
  */
 public class MainGUI extends JFrame
 {
-    public static Registry registry;
+	private static final long serialVersionUID = -6694309420011224182L;
+	public static Registry registry;
 
 
     public MainGUI(Registry registry)

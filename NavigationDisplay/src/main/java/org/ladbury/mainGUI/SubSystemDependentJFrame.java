@@ -17,7 +17,8 @@ import java.util.EnumSet;
  */
 public abstract class SubSystemDependentJFrame extends JFrame
 {
-    private boolean dependenciesMet;
+	private static final long serialVersionUID = -6380521236961137492L;
+	private boolean dependenciesMet;
 
     protected SubSystemDependentJFrame(EnumSet<SubSystem.SubSystemType> dependencies)
     {

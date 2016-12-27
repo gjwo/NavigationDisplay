@@ -20,7 +20,9 @@ import java.util.ArrayList;
  */
 public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
 {
-    private final Thread thread;
+	private static final long serialVersionUID = -3387172438728251380L;
+
+	private final Thread thread;
 
     private ArrayList<LogEntry> remoteEntries;
     private final ArrayList<LogEntry> localEntries;
