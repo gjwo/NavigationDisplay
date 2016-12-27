@@ -1,4 +1,4 @@
-package org.ladbury.userInterfacePkg;
+package org.ladbury.mainGUI.elements;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
