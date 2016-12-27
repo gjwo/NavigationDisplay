@@ -23,7 +23,7 @@ public class MainGUI extends JFrame
     public static Registry registry;
 
 
-    private MainGUI(Registry registry)
+    public MainGUI(Registry registry)
     {
         super("Tank Control");
         MainGUI.registry = registry;
