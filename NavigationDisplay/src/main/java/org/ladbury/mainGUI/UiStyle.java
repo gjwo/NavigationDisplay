@@ -1,4 +1,4 @@
-package org.ladbury.userInterfacePkg;
+package org.ladbury.mainGUI;
 
 import java.awt.Font;
 import java.text.DateFormat;

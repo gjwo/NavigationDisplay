@@ -2,12 +2,14 @@ package org.ladbury.mainGUI.elements;
 
 import logging.LogEntry;
 import logging.RemoteLog;
-import org.ladbury.userInterfacePkg.UiStyle;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultCaret;
+
+import org.ladbury.mainGUI.UiStyle;
+
 import java.awt.*;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
