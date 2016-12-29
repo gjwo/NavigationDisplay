@@ -83,7 +83,8 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
         textArea.setRows(20);
         DefaultCaret caret = (DefaultCaret)textArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-        this.add(textArea, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        this.add(scrollPane, BorderLayout.CENTER);
     }
 
     @Override
