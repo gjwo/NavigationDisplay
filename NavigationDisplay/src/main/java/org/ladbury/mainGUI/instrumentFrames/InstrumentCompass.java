@@ -162,28 +162,4 @@ public class InstrumentCompass extends SubSystemDependentJFrame implements Runna
     public JFreeChart getChart() {return chart;}
 
 	public ChartPanel getChartPanel() {return chartPanel;}
-
-    /*****************************************************************************
-    / * JFREECHART DEVELOPER GUIDE                                               *
-    / * The JFreeChart Developer Guide, written by David Gilbert, is available   *
-    / * to purchase from Object Refinery Limited:                                *
-    / *                                                                          *
-    / * http://www.object-refinery.com/jfreechart/guide.html                     *
-    / *                                                                          *
-    / * Sales are used to provide funding for the JFreeChart project - please    * 
-    / * support us so that we can continue developing free software.             *
-    / ****************************************************************************
-    
-    /**
-     * Starting point for the demonstration application.
-     *
-     * @param args  ignored.
-     */
-    public static void main(final String[] args) {
-    	// incorporated in calling class, called only for demo
-        final InstrumentCompass compass = new InstrumentCompass();
-        compass.pack();
-        compass.setVisible(true);
-        compass.setLocation(300,10);
-    }
 }
