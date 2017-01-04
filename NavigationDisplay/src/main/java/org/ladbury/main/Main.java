@@ -24,7 +24,6 @@ public class Main
 			reg = LocateRegistry.getRegistry(args[0], Registry.REGISTRY_PORT);
 		} catch (RemoteException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			reg = null;
 			System.exit(99);
