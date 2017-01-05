@@ -2,6 +2,7 @@ package org.ladbury.mainGUI.elements;
 
 import logging.LogEntry;
 import logging.RemoteLog;
+import logging.SystemLog.LogLevel;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -47,7 +48,7 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
         configureLevelSelector();
 
         this.count = 0;
-        this.viewingLevel = 2;
+        this.viewingLevel = LogLevel.TRACE_MAJOR_STATES.getLevel();
         this.localEntries = new ArrayList<>();
 
         thread = new Thread(this);
