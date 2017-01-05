@@ -86,7 +86,7 @@ public class MainGUI extends JFrame
         graphMenu.add(compass);
 
         JMenuItem meter = new JMenuItem("Meter");
-        compass.addActionListener(a -> new TelemetryMeter());
+        meter.addActionListener(a -> new TelemetryMeter());
         graphMenu.add(meter);
 
         // Control menu
