@@ -92,8 +92,8 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
     {
         super(EnumSet.of(SubSystem.SubSystemType.TELEMETRY));
         this.setTitle("Meter");
-        setScale(0,100);   	
-        dataset = new DefaultValueDataset(new Double(45.0)); //Create the dataset (single value)
+        setScale(0,15);   	
+        dataset = new DefaultValueDataset(new Double(0.0)); //Create the dataset (single value)
         chart = createChart(dataset);	//Create the chart
         
         chartPanel = new ChartPanel(chart);// add the chart to a panel...
@@ -157,14 +157,14 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
     private JFreeChart createChart(final ValueDataset dataset) 
     {
     	
-    	DefaultValueDataset data = new DefaultValueDataset(75.0);
+    	DefaultValueDataset data = new DefaultValueDataset(0.0);
     	MeterPlot plot = new MeterPlot(data);
     	DialShape shape = DialShape.CIRCLE;
     	
-    	plot.setUnits("Degrees");
+    	plot.setUnits("Volts");
     	plot.setRange(new Range(scaleStart, scaleEnd));
     	plot.addInterval(new MeterInterval("Normal", new Range(scaleNormalStart, scaleNormalEnd), Color.lightGray, new BasicStroke(2.0f),  new Color(0, 255, 0, 64)));
-    	plot.addInterval(new MeterInterval("Warning", new Range(scaleWarningStart, scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 255, 0, 64)));
+    	plot.addInterval(new MeterInterval("Warning", new Range(scaleWarningStart, scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new  Color(255, 255, 0, 64)));
     	plot.addInterval(new MeterInterval("Critical", new Range(scaleCriticalStart, scaleCriticalEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 0, 0, 128)));
     	
     	plot.setDialShape(shape);
@@ -178,7 +178,7 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
         return chart;
     }
     
-    public void setValue(double d) {this.dataset.setValue( d);}
+    public void setValue(double d) {this.dataset.setValue(d);}
 
     public JFreeChart getChart() {return chart;}
 
