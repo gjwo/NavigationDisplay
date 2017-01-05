@@ -124,7 +124,6 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
         while(!Thread.interrupted())
             try
             {
-                this.setValue(telemetry.getVoltage());
                 this.setValue(telemetry.getValue(params.name));
                 TimeUnit.MILLISECONDS.sleep(20);
             } catch (InterruptedException | RemoteException ignored) {}
@@ -145,7 +144,7 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
     	plot.setUnits(params.units);
     	plot.setRange(new Range(params.scaleStart, params.scaleEnd));
     	plot.addInterval(new MeterInterval("Normal", new Range(params.scaleNormalStart, params.scaleNormalEnd), Color.lightGray, new BasicStroke(2.0f),  new Color(0, 255, 0, 64)));
-    	plot.addInterval(new MeterInterval("Warning", new Range(params.scaleWarningStart, params.scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new  Color(255, 255, 0, 64)));
+    	plot.addInterval(new MeterInterval("Warning", new Range(params.scaleWarningStart, params.scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new  Color(255, 255, 0, 149)));
     	plot.addInterval(new MeterInterval("Critical", new Range(params.scaleCriticalStart, params.scaleCriticalEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 0, 0, 128)));
     	
     	plot.setDialShape(shape);
