@@ -157,8 +157,7 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
     private JFreeChart createChart(final ValueDataset dataset) 
     {
     	
-    	DefaultValueDataset data = new DefaultValueDataset(0.0);
-    	MeterPlot plot = new MeterPlot(data);
+    	MeterPlot plot = new MeterPlot(dataset);
     	DialShape shape = DialShape.CIRCLE;
     	
     	plot.setUnits("Volts");
