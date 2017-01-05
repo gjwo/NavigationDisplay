@@ -59,10 +59,10 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
     {
         JPanel spinnerPanel = new JPanel();
         SpinnerModel model =
-                new SpinnerNumberModel(2,  //initial value
-                                    0,  //min
-                                    10, //max
-                                     1); //step
+                new SpinnerNumberModel(	this.viewingLevel,  //initial value
+                                    	0,  //min
+                                    	10, //max
+                                    	1); //step
         levelSpinner.setModel(model);
         levelSpinner.addChangeListener(this);
         spinnerPanel.setLayout(new BorderLayout());
