@@ -1,5 +1,7 @@
 package org.ladbury.mainGUI.instrumentFrames;
 
+import java.awt.BasicStroke;
+
 /* ===========================================================
  * JFreeChart : a free chart library for the Java(tm) platform
  * ===========================================================
@@ -24,7 +26,7 @@ package org.ladbury.mainGUI.instrumentFrames;
  * in the United States and other countries.]
  *
  * -----------------
- * InstrumentCompass.java
+ * TelemetryMeter.java
  * -----------------
  * (C) Copyright 2002-2004, by Object Refinery Limited and Contributors.
  *
@@ -52,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.DialShape;
+import org.jfree.chart.plot.MeterInterval;
 import org.jfree.chart.plot.MeterPlot;
 import org.jfree.data.Range;
 import org.jfree.data.general.DefaultValueDataset;
@@ -73,15 +76,23 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
 
     private Thread thread;
     private RemoteTelemetry telemetry;
-
+    private double scaleStart;
+    private double scaleNormalStart;
+    private double scaleWarningStart;
+    private double scaleCriticalStart;
+    private double scaleEnd;
+    private double scaleNormalEnd;
+    private double scaleWarningEnd;
+    private double scaleCriticalEnd;
+ 
 	/**
-     * InstrumentCompass	-	Constructor
+     * TelemetryMeter	-	Constructor
      */
     public TelemetryMeter()
     {
         super(EnumSet.of(SubSystem.SubSystemType.TELEMETRY));
         this.setTitle("Meter");
-
+        setScale(0,100);   	
         dataset = new DefaultValueDataset(new Double(45.0)); //Create the dataset (single value)
         chart = createChart(dataset);	//Create the chart
         
@@ -114,6 +125,18 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
         this.setVisible(true);
     }
 
+    public void setScale(double start, double end)
+    {
+    	scaleStart = start;
+    	scaleEnd = end;
+        scaleNormalStart = scaleStart;
+        scaleWarningStart = scaleStart + (scaleEnd-scaleStart)*0.7;
+        scaleCriticalStart = scaleStart + (scaleEnd-scaleStart)*0.9;
+        scaleNormalEnd = scaleWarningStart;
+        scaleWarningEnd = scaleCriticalStart;
+        scaleCriticalEnd = scaleEnd;
+    }
+    
     @Override
     public void run()
     {
@@ -121,7 +144,6 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
             try
             {
                 this.setValue(telemetry.getVoltage());
-                //System.out.println("RMI data: " + instruments.getTaitBryanAnglesD().toString());
                 TimeUnit.MILLISECONDS.sleep(20);
             } catch (InterruptedException | RemoteException ignored) {}
     }
@@ -140,10 +162,10 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
     	DialShape shape = DialShape.CIRCLE;
     	
     	plot.setUnits("Degrees");
-    	plot.setRange(new Range(20.0, 140.0));
-    	//plot.setNormalRange(new Range(70.0, 100.0));
-    	//plot.setWarningRange(new Range(100.0, 120.0));
-    	//plot.setCriticalRange(new Range(120.0, 140.0));
+    	plot.setRange(new Range(scaleStart, scaleEnd));
+    	plot.addInterval(new MeterInterval("Normal", new Range(scaleNormalStart, scaleNormalEnd), Color.lightGray, new BasicStroke(2.0f),  new Color(0, 255, 0, 64)));
+    	plot.addInterval(new MeterInterval("Warning", new Range(scaleWarningStart, scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 255, 0, 64)));
+    	plot.addInterval(new MeterInterval("Critical", new Range(scaleCriticalStart, scaleCriticalEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 0, 0, 128)));
     	
     	plot.setDialShape(shape);
      	plot.setNeedlePaint(Color.white);
