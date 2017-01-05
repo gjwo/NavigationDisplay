@@ -10,10 +10,7 @@ import java.rmi.registry.Registry;
 import org.ladbury.mainGUI.elements.SwingLogDisplay;
 import org.ladbury.mainGUI.elements.SystemManagerToolBar;
 import org.ladbury.mainGUI.elements.UiAboutBox;
-import org.ladbury.mainGUI.instrumentFrames.CubeFrame;
-import org.ladbury.mainGUI.instrumentFrames.DynamicLineAndTimeSeriesChart;
-import org.ladbury.mainGUI.instrumentFrames.InstrumentCompass;
-import org.ladbury.mainGUI.instrumentFrames.Meter;
+import org.ladbury.mainGUI.instrumentFrames.*;
 import org.ladbury.mainGUI.motorFrames.MotorControlFrame;
 
 import subsystems.SubSystem.SubSystemType;
@@ -87,9 +84,17 @@ public class MainGUI extends JFrame
         compass.addActionListener(a -> new InstrumentCompass());
         graphMenu.add(compass);
 
-        JMenuItem meter = new JMenuItem("Meter");
-        meter.addActionListener(a -> new Meter(SubSystemType.TELEMETRY));
-        graphMenu.add(meter);
+        JMenuItem voltMeter = new JMenuItem("Volt Meter");
+        voltMeter.addActionListener(a -> new Meter(MeterConfiguration.BATTERY_METER));
+        graphMenu.add(voltMeter);
+
+        JMenuItem currentMeter = new JMenuItem("Current Meter");
+        currentMeter.addActionListener(a -> new Meter(MeterConfiguration.CURRENT_METER));
+        graphMenu.add(currentMeter);
+
+        JMenuItem powerMeter = new JMenuItem("Power Meter");
+        powerMeter.addActionListener(a -> new Meter(MeterConfiguration.POWER_METER));
+        graphMenu.add(powerMeter);
 
         // Control menu
         JMenu controlMenu = new JMenu("Control");

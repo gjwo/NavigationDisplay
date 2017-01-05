@@ -2,7 +2,9 @@ package org.ladbury.mainGUI.instrumentFrames;
 
 public enum MeterConfiguration
 {
-	BATTERY_METER(0,12,11.5,0,15,15,12,11.1,"Volt Meter", "Volts");
+	BATTERY_METER(10,12,11.1,10,12.6,12.6,12,11.1,"Volt Meter", "Volts"),
+	CURRENT_METER(0,0,2000,3300,3700,2000,3300,3700,"Current Meter", "mAmps"),
+	POWER_METER(0,0,30,60,100,30,60,100,"Power Meter", "Watts");
 
 	final double scaleStart;
 	final double scaleNormalStart;

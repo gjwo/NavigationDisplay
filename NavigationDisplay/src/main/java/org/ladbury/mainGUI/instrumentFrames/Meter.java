@@ -81,10 +81,10 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
 	/**
      * TelemetryMeter	-	Constructor
      */
-    public Meter(SubSystemType subSystemType)
+    public Meter(MeterConfiguration configuration)
     {
-        super(EnumSet.of(subSystemType));
-        this.params = MeterConfiguration.BATTERY_METER;
+        super(EnumSet.of(SubSystemType.TELEMETRY));
+        this.params = configuration;
         this.setTitle(params.name);
         dataset = new DefaultValueDataset(new Double(0.0)); //Create the dataset (single value)
         chart = createChart(dataset);	//Create the chart
@@ -143,16 +143,19 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
     	
     	plot.setUnits(params.units);
     	plot.setRange(new Range(params.scaleStart, params.scaleEnd));
-    	plot.addInterval(new MeterInterval("Normal", new Range(params.scaleNormalStart, params.scaleNormalEnd), Color.lightGray, new BasicStroke(2.0f),  new Color(0, 255, 0, 64)));
-    	plot.addInterval(new MeterInterval("Warning", new Range(params.scaleWarningStart, params.scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new  Color(255, 255, 0, 149)));
-    	plot.addInterval(new MeterInterval("Critical", new Range(params.scaleCriticalStart, params.scaleCriticalEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 0, 0, 128)));
-    	
+    	plot.addInterval(new MeterInterval("Normal", new Range(params.scaleNormalStart, params.scaleNormalEnd), Color.lightGray, new BasicStroke(2.0f),  new Color(72, 255, 59, 255)));
+    	plot.addInterval(new MeterInterval("Warning", new Range(params.scaleWarningStart, params.scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new  Color(253, 255, 45, 255)));
+    	plot.addInterval(new MeterInterval("Critical", new Range(params.scaleCriticalStart, params.scaleCriticalEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 37, 40, 255)));
+    	plot.setDialBackgroundPaint(Color.WHITE);
     	plot.setDialShape(shape);
-     	plot.setNeedlePaint(Color.white);
-    	plot.setTickLabelFont(new Font("SansSerif", Font.BOLD, 9));
-    	plot.setTickLabelFormat(new DecimalFormat("0"));
-    	plot.setTickLabelPaint(Color.white);
-    	plot.setTickSize(1.0);
+     	plot.setNeedlePaint(Color.BLACK);
+    	plot.setTickLabelFont(new Font("Lucida Sans", Font.PLAIN, 11));
+    	plot.setValueFont(new Font("Lucida Sans", Font.PLAIN, 15));
+    	plot.setTickLabelPaint(Color.BLACK);
+    	plot.setTickPaint(Color.BLACK);
+    	plot.setTickLabelFormat(new DecimalFormat("00.00"));
+    	plot.setValuePaint(Color.BLACK);
+    	plot.setTickSize(Math.abs(params.scaleEnd - params.scaleStart)/10);
     	plot.setTickLabelsVisible(true);
     	plot.setInsets(new RectangleInsets(5, 5, 5, 5));
     	JFreeChart chart = new JFreeChart(	params.name, 
