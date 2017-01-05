@@ -39,17 +39,16 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
         super();
         this.setLayout(new BorderLayout());
 
+        this.count = 0;
+        this.viewingLevel = LogLevel.TRACE_MAJOR_STATES.getLevel();
+        this.localEntries = new ArrayList<>();
+
         this.registry = registry;
         textArea = new JTextArea();
         levelSpinner = new JSpinner();
 
-
         configureTextArea();
         configureLevelSelector();
-
-        this.count = 0;
-        this.viewingLevel = LogLevel.TRACE_MAJOR_STATES.getLevel();
-        this.localEntries = new ArrayList<>();
 
         thread = new Thread(this);
         thread.start();
