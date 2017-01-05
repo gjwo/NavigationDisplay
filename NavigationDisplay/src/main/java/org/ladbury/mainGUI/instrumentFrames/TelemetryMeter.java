@@ -171,14 +171,14 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
      	plot.setNeedlePaint(Color.white);
     	plot.setTickLabelFont(new Font("SansSerif", Font.BOLD, 9));
     	plot.setInsets(new RectangleInsets(5, 5, 5, 5));
-    	 JFreeChart chart = new JFreeChart(	"Meter Chart", 
+    	JFreeChart chart = new JFreeChart(	"Meter Chart", 
     			 							JFreeChart.DEFAULT_TITLE_FONT, 
     			 							plot, 
     			 							false);
         return chart;
     }
     
-    public void setValue(double d) {this.dataset.setValue(d);}
+    public void setValue(double d) {System.out.println(d+"V");this.dataset.setValue(d);}
 
     public JFreeChart getChart() {return chart;}
 
