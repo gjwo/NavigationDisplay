@@ -69,96 +69,12 @@ import telemetry.RemoteTelemetry;
 /** The available needle types. */
 public class Meter extends SubSystemDependentJFrame implements Runnable
 {
-	public class MeterParameters
-	{
-
-		private double scaleStart;
-		private double scaleNormalStart;
-	    private double scaleWarningStart;
-	    private double scaleCriticalStart;
-	    private double scaleEnd;
-	    private double scaleNormalEnd;
-	    private double scaleWarningEnd;
-	    private double scaleCriticalEnd;
-	    private String name;
-	    private String units; 
-	    
-	    //Constructor
-	    MeterParameters()
-	    {
-			this.scaleStart = 0;
-			this.scaleNormalStart = 12;
-		    this.scaleWarningStart = 11.5 ;
-		    this.scaleCriticalStart = 0;
-		    this.scaleEnd = 15;
-		    this.scaleNormalEnd = 15;
-		    this.scaleWarningEnd = 12;
-		    this.scaleCriticalEnd = 11.1;
-		    this.name = "Volt Meter";
-		    this.units = "Volts"; 
-	    	
-	    }
-	    
-	    public void setScale(double start, double end, boolean CriticalHigh)
-	    {
-	    	if (CriticalHigh)
-	    	{
-		    	scaleStart = start;
-		    	scaleEnd = end;
-		        scaleNormalStart = scaleStart;
-		        scaleWarningStart = scaleStart + (scaleEnd-scaleStart)*0.7;
-		        scaleCriticalStart = scaleStart + (scaleEnd-scaleStart)*0.9;
-		        scaleNormalEnd = scaleWarningStart;
-		        scaleWarningEnd = scaleCriticalStart;
-		        scaleCriticalEnd = scaleEnd;
-	    	} else
-	    	{
-		    	scaleStart = start;
-		    	scaleEnd = end;
-		        scaleNormalStart = (scaleEnd-scaleStart)*0.8;
-		        scaleWarningStart = scaleStart + (scaleEnd-scaleStart)*0.7;
-		        scaleCriticalStart = scaleStart;
-		        scaleNormalEnd = scaleEnd;
-		        scaleWarningEnd = scaleStart + (scaleEnd-scaleStart)*0.8;
-		        scaleCriticalEnd = scaleStart + (scaleEnd-scaleStart)*0.7;
-
-	    	}
-	    		
-	    }
-	    public boolean setCriticalScale(double start, double end)
-	    {
-	    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
-	    	this.scaleCriticalStart = start;
-	    	this.scaleCriticalEnd = end;
-	    	return true;
-	    }
-	    
-	    public boolean setWarningScale(double start, double end)
-	    {
-	    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
-	    	this.scaleWarningStart = start;
-	    	this.scaleWarningEnd = end;
-	    	return true;
-	    }
-	    
-	    public boolean setNormalScale(double start, double end)
-	    {
-	    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
-	    	this.scaleNormalStart = start;
-	    	this.scaleNormalEnd = end;
-	    	return true;
-	    }
-	    
-	    public void setName(String name){ this.name = name;}
-	    public void setUnits(String units){this.units = units;}
-	
-	}
 	
 	private static final long serialVersionUID = 1585778226074987267L;
 	private final DefaultValueDataset dataset;
 	private JFreeChart chart;
 	private ChartPanel chartPanel;
-	private MeterParameters params;
+	private MeterConfiguration params;
     private Thread thread;
     private RemoteTelemetry telemetry;
  
@@ -168,7 +84,7 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
     public Meter(SubSystemType subSystemType)
     {
         super(EnumSet.of(subSystemType));
-        this.params = new MeterParameters();
+        this.params = MeterConfiguration.BATTERY_METER;
         this.setTitle(params.name);
         dataset = new DefaultValueDataset(new Double(0.0)); //Create the dataset (single value)
         chart = createChart(dataset);	//Create the chart
@@ -209,6 +125,7 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
             try
             {
                 this.setValue(telemetry.getVoltage());
+                this.setValue(telemetry.getValue(params.name));
                 TimeUnit.MILLISECONDS.sleep(20);
             } catch (InterruptedException | RemoteException ignored) {}
     }
