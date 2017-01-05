@@ -63,41 +63,113 @@ import org.jfree.data.general.ValueDataset;
 import org.jfree.ui.RectangleInsets;
 import org.ladbury.mainGUI.SubSystemDependentJFrame;
 import org.ladbury.mainGUI.MainGUI;
-import subsystems.SubSystem;
+import subsystems.SubSystem.SubSystemType;
 import telemetry.RemoteTelemetry;
 
 /** The available needle types. */
-public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
+public class Meter extends SubSystemDependentJFrame implements Runnable
 {
+	public class MeterParameters
+	{
 
+		private double scaleStart;
+		private double scaleNormalStart;
+	    private double scaleWarningStart;
+	    private double scaleCriticalStart;
+	    private double scaleEnd;
+	    private double scaleNormalEnd;
+	    private double scaleWarningEnd;
+	    private double scaleCriticalEnd;
+	    private String name;
+	    private String units; 
+	    
+	    //Constructor
+	    MeterParameters()
+	    {
+			this.scaleStart = 0;
+			this.scaleNormalStart = 12;
+		    this.scaleWarningStart = 11.5 ;
+		    this.scaleCriticalStart = 0;
+		    this.scaleEnd = 15;
+		    this.scaleNormalEnd = 15;
+		    this.scaleWarningEnd = 12;
+		    this.scaleCriticalEnd = 11.1;
+		    this.name = "Volt Meter";
+		    this.units = "Volts"; 
+	    	
+	    }
+	    
+	    public void setScale(double start, double end, boolean CriticalHigh)
+	    {
+	    	if (CriticalHigh)
+	    	{
+		    	scaleStart = start;
+		    	scaleEnd = end;
+		        scaleNormalStart = scaleStart;
+		        scaleWarningStart = scaleStart + (scaleEnd-scaleStart)*0.7;
+		        scaleCriticalStart = scaleStart + (scaleEnd-scaleStart)*0.9;
+		        scaleNormalEnd = scaleWarningStart;
+		        scaleWarningEnd = scaleCriticalStart;
+		        scaleCriticalEnd = scaleEnd;
+	    	} else
+	    	{
+		    	scaleStart = start;
+		    	scaleEnd = end;
+		        scaleNormalStart = (scaleEnd-scaleStart)*0.8;
+		        scaleWarningStart = scaleStart + (scaleEnd-scaleStart)*0.7;
+		        scaleCriticalStart = scaleStart;
+		        scaleNormalEnd = scaleEnd;
+		        scaleWarningEnd = scaleStart + (scaleEnd-scaleStart)*0.8;
+		        scaleCriticalEnd = scaleStart + (scaleEnd-scaleStart)*0.7;
+
+	    	}
+	    		
+	    }
+	    public boolean setCriticalScale(double start, double end)
+	    {
+	    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
+	    	this.scaleCriticalStart = start;
+	    	this.scaleCriticalEnd = end;
+	    	return true;
+	    }
+	    
+	    public boolean setWarningScale(double start, double end)
+	    {
+	    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
+	    	this.scaleWarningStart = start;
+	    	this.scaleWarningEnd = end;
+	    	return true;
+	    }
+	    
+	    public boolean setNormalScale(double start, double end)
+	    {
+	    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
+	    	this.scaleNormalStart = start;
+	    	this.scaleNormalEnd = end;
+	    	return true;
+	    }
+	    
+	    public void setName(String name){ this.name = name;}
+	    public void setUnits(String units){this.units = units;}
+	
+	}
+	
 	private static final long serialVersionUID = 1585778226074987267L;
 	private final DefaultValueDataset dataset;
 	private JFreeChart chart;
 	private ChartPanel chartPanel;
-
+	private MeterParameters params;
     private Thread thread;
     private RemoteTelemetry telemetry;
-    private double scaleStart;
-    private double scaleNormalStart;
-    private double scaleWarningStart;
-    private double scaleCriticalStart;
-    private double scaleEnd;
-    private double scaleNormalEnd;
-    private double scaleWarningEnd;
-    private double scaleCriticalEnd;
-    private String name;
-    private String units; 
  
 	/**
      * TelemetryMeter	-	Constructor
      */
-    public TelemetryMeter()
+    public Meter(SubSystemType subSystemType)
     {
-        super(EnumSet.of(SubSystem.SubSystemType.TELEMETRY));
-        this.name = "Meter";
-        this.setTitle(this.name);
-        this.units = "Volts";
-        setScale(0,15,false);   	
+        super(EnumSet.of(subSystemType));
+        this.params = new MeterParameters();
+        this.setTitle(params.name);
         dataset = new DefaultValueDataset(new Double(0.0)); //Create the dataset (single value)
         chart = createChart(dataset);	//Create the chart
         
@@ -130,58 +202,6 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
         this.setVisible(true);
     }
 
-    public void setScale(double start, double end, boolean CriticalHigh)
-    {
-    	if (CriticalHigh)
-    	{
-	    	scaleStart = start;
-	    	scaleEnd = end;
-	        scaleNormalStart = scaleStart;
-	        scaleWarningStart = scaleStart + (scaleEnd-scaleStart)*0.7;
-	        scaleCriticalStart = scaleStart + (scaleEnd-scaleStart)*0.9;
-	        scaleNormalEnd = scaleWarningStart;
-	        scaleWarningEnd = scaleCriticalStart;
-	        scaleCriticalEnd = scaleEnd;
-    	} else
-    	{
-	    	scaleStart = start;
-	    	scaleEnd = end;
-	        scaleNormalStart = (scaleEnd-scaleStart)*0.8;
-	        scaleWarningStart = scaleStart + (scaleEnd-scaleStart)*0.7;
-	        scaleCriticalStart = scaleStart;
-	        scaleNormalEnd = scaleEnd;
-	        scaleWarningEnd = scaleStart + (scaleEnd-scaleStart)*0.8;
-	        scaleCriticalEnd = scaleStart + (scaleEnd-scaleStart)*0.7;
-
-    	}
-    		
-    }
-    public boolean setCriticalScale(double start, double end)
-    {
-    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
-    	this.scaleCriticalStart = start;
-    	this.scaleCriticalEnd = end;
-    	return true;
-    }
-    
-    public boolean setWarningScale(double start, double end)
-    {
-    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
-    	this.scaleWarningStart = start;
-    	this.scaleWarningEnd = end;
-    	return true;
-    }
-    
-    public boolean setNormalScale(double start, double end)
-    {
-    	if ((start < scaleStart) | (start > scaleEnd) |(end < scaleEnd) |(end > scaleEnd)) return false;
-    	this.scaleNormalStart = start;
-    	this.scaleNormalEnd = end;
-    	return true;
-    }
-    
-    public void setName(String name){ this.name = name;}
-    public void setUnits(String units){this.units = units;}
     @Override
     public void run()
     {
@@ -205,11 +225,11 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
     	MeterPlot plot = new MeterPlot(dataset);
     	DialShape shape = DialShape.CIRCLE;
     	
-    	plot.setUnits(this.units);
-    	plot.setRange(new Range(scaleStart, scaleEnd));
-    	plot.addInterval(new MeterInterval("Normal", new Range(scaleNormalStart, scaleNormalEnd), Color.lightGray, new BasicStroke(2.0f),  new Color(0, 255, 0, 64)));
-    	plot.addInterval(new MeterInterval("Warning", new Range(scaleWarningStart, scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new  Color(255, 255, 0, 64)));
-    	plot.addInterval(new MeterInterval("Critical", new Range(scaleCriticalStart, scaleCriticalEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 0, 0, 128)));
+    	plot.setUnits(params.units);
+    	plot.setRange(new Range(params.scaleStart, params.scaleEnd));
+    	plot.addInterval(new MeterInterval("Normal", new Range(params.scaleNormalStart, params.scaleNormalEnd), Color.lightGray, new BasicStroke(2.0f),  new Color(0, 255, 0, 64)));
+    	plot.addInterval(new MeterInterval("Warning", new Range(params.scaleWarningStart, params.scaleWarningEnd), Color.lightGray, new BasicStroke(2.0f), new  Color(255, 255, 0, 64)));
+    	plot.addInterval(new MeterInterval("Critical", new Range(params.scaleCriticalStart, params.scaleCriticalEnd), Color.lightGray, new BasicStroke(2.0f), new Color(255, 0, 0, 128)));
     	
     	plot.setDialShape(shape);
      	plot.setNeedlePaint(Color.white);
@@ -219,22 +239,14 @@ public class TelemetryMeter extends SubSystemDependentJFrame implements Runnable
     	plot.setTickSize(1.0);
     	plot.setTickLabelsVisible(true);
     	plot.setInsets(new RectangleInsets(5, 5, 5, 5));
-    	JFreeChart chart = new JFreeChart(	this.name, 
+    	JFreeChart chart = new JFreeChart(	params.name, 
     			 							JFreeChart.DEFAULT_TITLE_FONT, 
     			 							plot, 
     			 							false);
         return chart;
     }
-    public void recreateChart()
-    {
-    	this.chart = createChart(this.dataset);
-    	this.chartPanel = new ChartPanel(this.chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(300, 270));
-        chartPanel.setEnforceFileExtensions(false);
-        setContentPane(chartPanel); //add the panel to the ApplicationFrame
-    }
     
-    public void setValue(double d) {System.out.println(d+"V");this.dataset.setValue(d);}
+    public void setValue(double d) {this.dataset.setValue(d);}
 
     public JFreeChart getChart() {return chart;}
 

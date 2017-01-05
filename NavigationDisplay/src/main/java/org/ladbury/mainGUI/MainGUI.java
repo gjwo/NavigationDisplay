@@ -13,8 +13,10 @@ import org.ladbury.mainGUI.elements.UiAboutBox;
 import org.ladbury.mainGUI.instrumentFrames.CubeFrame;
 import org.ladbury.mainGUI.instrumentFrames.DynamicLineAndTimeSeriesChart;
 import org.ladbury.mainGUI.instrumentFrames.InstrumentCompass;
-import org.ladbury.mainGUI.instrumentFrames.TelemetryMeter;
+import org.ladbury.mainGUI.instrumentFrames.Meter;
 import org.ladbury.mainGUI.motorFrames.MotorControlFrame;
+
+import subsystems.SubSystem.SubSystemType;
 
 /**
  * NavigationDisplay - org.ladbury.main
@@ -86,7 +88,7 @@ public class MainGUI extends JFrame
         graphMenu.add(compass);
 
         JMenuItem meter = new JMenuItem("Meter");
-        meter.addActionListener(a -> new TelemetryMeter());
+        meter.addActionListener(a -> new Meter(SubSystemType.TELEMETRY));
         graphMenu.add(meter);
 
         // Control menu
