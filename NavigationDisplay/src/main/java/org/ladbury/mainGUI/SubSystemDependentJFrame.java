@@ -40,7 +40,6 @@ public abstract class SubSystemDependentJFrame extends JFrame
         } catch (RemoteException | NotBoundException e)
         {
             dependenciesMet = false;
-            e.printStackTrace();
         }
     }
 
