@@ -30,7 +30,7 @@ public class Main
 
     private static Registry attemptToConnect(String address)
     {
-        Registry reg = null;
+        Registry reg;
         try
         {
             reg = LocateRegistry.getRegistry(address, Registry.REGISTRY_PORT);
