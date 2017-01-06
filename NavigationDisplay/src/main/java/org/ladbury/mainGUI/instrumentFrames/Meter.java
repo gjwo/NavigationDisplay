@@ -124,7 +124,7 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
         while(!Thread.interrupted())
             try
             {
-                this.setValue(telemetry.getValue(params.name));
+                this.setValue(telemetry.getRealValue(params.name));
                 TimeUnit.MILLISECONDS.sleep(20);
             } catch (InterruptedException | RemoteException ignored) {}
     }
