@@ -154,7 +154,7 @@ public class InstrumentCompass extends SubSystemDependentJFrame implements Runna
         return chart;
     }
     
-    public void setHeading(float heading)
+    private void setHeading(float heading)
     {
     	this.dataset.setValue((double) heading);
     }

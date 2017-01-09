@@ -1,6 +1,5 @@
 package org.ladbury.main;
 
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;

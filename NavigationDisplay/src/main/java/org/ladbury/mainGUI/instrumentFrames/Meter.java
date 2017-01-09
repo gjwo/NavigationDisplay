@@ -72,9 +72,9 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
 	
 	private static final long serialVersionUID = 1585778226074987267L;
 	private final DefaultValueDataset dataset;
-	private JFreeChart chart;
-	private ChartPanel chartPanel;
-	private MeterConfiguration params;
+	private final JFreeChart chart;
+	private final ChartPanel chartPanel;
+	private final MeterConfiguration params;
     private Thread thread;
     private RemoteTelemetry telemetry;
  
@@ -158,14 +158,13 @@ public class Meter extends SubSystemDependentJFrame implements Runnable
     	plot.setTickSize(Math.abs(params.scaleEnd - params.scaleStart)/10);
     	plot.setTickLabelsVisible(true);
     	plot.setInsets(new RectangleInsets(5, 5, 5, 5));
-    	JFreeChart chart = new JFreeChart(	params.name, 
-    			 							JFreeChart.DEFAULT_TITLE_FONT, 
-    			 							plot, 
-    			 							false);
-        return chart;
+        return new JFreeChart(	params.name,
+                                             JFreeChart.DEFAULT_TITLE_FONT,
+                                             plot,
+                                             false);
     }
     
-    public void setValue(double d) {this.dataset.setValue(d);}
+    private void setValue(double d) {this.dataset.setValue(d);}
 
     public JFreeChart getChart() {return chart;}
 

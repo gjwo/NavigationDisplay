@@ -48,6 +48,7 @@ public abstract class SubSystemDependentJFrame extends JFrame
         return rm.getSubSystemState(system) == SubSystemState.RUNNING;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean isDependenciesMet()
     {
         return dependenciesMet;

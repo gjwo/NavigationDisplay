@@ -13,8 +13,6 @@ import org.ladbury.mainGUI.elements.UiAboutBox;
 import org.ladbury.mainGUI.instrumentFrames.*;
 import org.ladbury.mainGUI.motorFrames.MotorControlFrame;
 
-import subsystems.SubSystem.SubSystemType;
-
 /**
  * NavigationDisplay - org.ladbury.main
  * Created by MAWood on 26/12/2016.

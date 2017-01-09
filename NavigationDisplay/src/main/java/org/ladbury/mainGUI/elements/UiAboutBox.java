@@ -103,7 +103,7 @@ public class UiAboutBox
     }
 
     /**Close the dialog*/
-    void cancel() {
+    private void cancel() {
         dispose();
     }
 

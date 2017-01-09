@@ -55,7 +55,7 @@ import subsystems.SubSystem;
 public class CubeFrame extends SubSystemDependentJFrame implements Runnable
 {
 	private static final long serialVersionUID = 6434386099807478708L;
-	public SimpleBehavior myRotationBehavior;
+	private SimpleBehavior myRotationBehavior;
     private RemoteInstruments instruments;
 
     public CubeFrame()

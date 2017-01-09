@@ -97,7 +97,7 @@ public class DynamicLineAndTimeSeriesChart extends SubSystemDependentJFrame impl
      * addReading	-	Add a new reading to the circular array
      * @param reading new data to be plotted
      */
-    public void addReading(TimestampedData3f reading)
+    private void addReading(TimestampedData3f reading)
     {
         plotNav(reading);
     }
@@ -205,13 +205,11 @@ public class DynamicLineAndTimeSeriesChart extends SubSystemDependentJFrame impl
     /**
      * actionPerformed	-	prompt that some data is ready
      *
-     * @param e  the action event.
      */
    /* public void actionPerformed(final ActionEvent e) {
     	plotNav( this.navData.get(0)); //get the last reading from the circular array
     }*/
-
-    public void plotNav(TimestampedData3f reading) {
+    private void plotNav(TimestampedData3f reading) {
         final Millisecond thisMilliSec = new Millisecond(new Date(startTime + reading.getTime()/1000000L)); // construct epoch relative time using a fixed time.
         this.yawSeries.addOrUpdate(thisMilliSec, reading.getX());
         this.pitchSeries.addOrUpdate(thisMilliSec, reading.getY());

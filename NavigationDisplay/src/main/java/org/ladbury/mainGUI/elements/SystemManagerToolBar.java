@@ -38,7 +38,7 @@ public class SystemManagerToolBar extends JToolBar
         setupToolBar();
     }
 
-    private void setupToolBar() throws RemoteException, NotBoundException
+    private void setupToolBar() throws RemoteException
     {
         Set<SubSystem.SubSystemType> systems = remoteMain.getSubSystems();
         for(SubSystem.SubSystemType system:systems)
