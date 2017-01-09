@@ -124,6 +124,7 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
         textArea.setText(text);
     }
 
+    @SuppressWarnings("unused")
     public void stop()
     {
         thread.interrupt();

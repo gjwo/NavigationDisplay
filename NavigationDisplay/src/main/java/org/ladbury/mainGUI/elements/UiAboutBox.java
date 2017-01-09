@@ -42,7 +42,7 @@ public class UiAboutBox
     private final JPanel insetsPanel1 = new JPanel();
     private final JPanel insetsPanel3 = new JPanel();
     private final JButton button1 = new JButton();
-    JLabel imageLabel = new JLabel();
+    //JLabel imageLabel = new JLabel();
     private final JLabel label1 = new JLabel();
     private final JLabel label2 = new JLabel();
     private final JLabel label3 = new JLabel();
