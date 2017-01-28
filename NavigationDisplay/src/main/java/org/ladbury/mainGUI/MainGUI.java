@@ -11,6 +11,7 @@ import org.ladbury.mainGUI.elements.SwingLogDisplay;
 import org.ladbury.mainGUI.elements.SystemManagerToolBar;
 import org.ladbury.mainGUI.elements.UiAboutBox;
 import org.ladbury.mainGUI.instrumentFrames.*;
+import org.ladbury.mainGUI.mapFrames.RadarChart;
 import org.ladbury.mainGUI.motorFrames.MotorControlFrame;
 
 /**
@@ -94,6 +95,13 @@ public class MainGUI extends JFrame
         powerMeter.addActionListener(a -> new Meter(MeterConfiguration.POWER_METER));
         graphMenu.add(powerMeter);
 
+        // Mapping menu
+        JMenu MappingMenu = new JMenu("Mapping");
+
+        JMenuItem radarChart = new JMenuItem("Radar Chart");
+        imuGraph.addActionListener(a -> new RadarChart());
+        graphMenu.add(radarChart);
+
         // Control menu
         JMenu controlMenu = new JMenu("Control");
 
@@ -109,6 +117,7 @@ public class MainGUI extends JFrame
         
         menuBar.add(systemMenu);
         menuBar.add(graphMenu);
+        menuBar.add(MappingMenu);
         menuBar.add(controlMenu);
         menuBar.add(helpMenu);
 
