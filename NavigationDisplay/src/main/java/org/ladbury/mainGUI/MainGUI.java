@@ -99,8 +99,8 @@ public class MainGUI extends JFrame
         JMenu MappingMenu = new JMenu("Mapping");
 
         JMenuItem radarChart = new JMenuItem("Radar Chart");
-        imuGraph.addActionListener(a -> new RadarChart());
-        graphMenu.add(radarChart);
+        radarChart.addActionListener(a -> new RadarChart());
+        MappingMenu.add(radarChart);
 
         // Control menu
         JMenu controlMenu = new JMenu("Control");
