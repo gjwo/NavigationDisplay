@@ -3,7 +3,9 @@ import dataTypes.TimestampedData1f;
 import mapping.RemoteRangeScanner;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.SpiderWebPlot;
+import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.util.TableOrder;
 import org.ladbury.mainGUI.SubSystemDependentJFrame;
@@ -25,7 +27,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class RadarChart extends SubSystemDependentJFrame implements Runnable, UpdateListener
 {
-    private final int plotSize = 500;
     private RemoteRangeScanner rangeScanner;
     private Thread thread;
     private volatile  boolean dataReady;
@@ -76,6 +77,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         displayPoints = rangeValuesPerRotation / displayRatio;
         JFreeChart radarChart = createRadarChart(createRadarDataset(displayPoints));
         ChartPanel chartPanel = new ChartPanel(radarChart);
+        int plotSize = 500;
         chartPanel.setPreferredSize(new java.awt.Dimension(plotSize, plotSize));
         chartPanel.setEnforceFileExtensions(false);
         setContentPane(chartPanel); //add the panel to the ApplicationFrame
@@ -84,24 +86,27 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         this.setVisible(true);
     }
 
-    private JFreeChart createRadarChart(DefaultCategoryDataset dataset)
+    private JFreeChart createRadarChart(CategoryDataset dataset)
     {
         SpiderWebPlot webPlot = new SpiderWebPlot(dataset, TableOrder.BY_ROW);
+        webPlot.setToolTipGenerator(new StandardCategoryToolTipGenerator());
         //webPlot.setOutlineVisible(true);
         webPlot.setStartAngle(270); // 0 is at 3 o'clock, we want 12 o'clock
         //webPlot.setWebFilled(true);
         webPlot.setDirection(Rotation.CLOCKWISE);
         return new JFreeChart("Radar",null, webPlot,false);
     }
-    private DefaultCategoryDataset createRadarDataset(int points)
+    private CategoryDataset createRadarDataset(int points)
     {
         // see http://stackoverflow.com/questions/32862913/how-to-draw-a-spiderchart-above-a-existing-jfreechart
+        // and http://www.jfree.org/phpBB2/viewtopic.php?f=3&t=28485
         angle = 360f/points;
         categoryDataset = new DefaultCategoryDataset();
         plotPoints = new double[points];
+        //only one row in this dataset, could add times at a later point
         for( int i = 0; i<points;i++)
         {
-            categoryDataset.addValue(50+i, "", ((Float)((float)i*angle)).toString());
+            categoryDataset.addValue(50+i, "Radar", angleLable(i * angle));
         }
         return categoryDataset;
     }
@@ -119,9 +124,17 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
             }
             averageRange/=displayRatio;
             plotPoints[i] = averageRange;
-            categoryDataset.setValue(averageRange, "", ((Float) ((float) i * angle)).toString());
+            //only one row in this dataset, could add times at a later point1
+            categoryDataset.setValue(averageRange, "Radar", angleLable(i * angle));
         }
     }
+
+    /**
+     * angleLable           -   gets a category lable based on the angle of the radar scan
+     * @param totalAngle    -   current total angle in degrees 0-359
+     * @return              -   a string built from the angle
+     */
+    private String angleLable(float totalAngle){return ((Float) ((float) totalAngle)).toString();}
 
     @Override
     public void run()
