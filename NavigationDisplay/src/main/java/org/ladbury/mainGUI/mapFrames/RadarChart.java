@@ -5,10 +5,12 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.SpiderWebPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.util.TableOrder;
 import org.ladbury.mainGUI.SubSystemDependentJFrame;
 import org.ladbury.mainGUI.MainGUI;
 import sensors.interfaces.UpdateListener;
 import subsystems.SubSystem;
+import org.jfree.util.Rotation;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -23,20 +25,27 @@ import java.util.concurrent.TimeUnit;
  */
 public class RadarChart extends SubSystemDependentJFrame implements Runnable, UpdateListener
 {
+    private final int plotSize = 500;
     private RemoteRangeScanner rangeScanner;
     private Thread thread;
     private volatile  boolean dataReady;
-    private int points_on_circle; //categories
+    private int rangeValuesPerRotation;
+    private int displayPoints; // no of categories diplayed on chart
     private double[] plotPoints;
     private DefaultCategoryDataset categoryDataset;
     private float angle;
+    private final int displayRatio;
 
 
+    /**
+     * RadarChart   -   Constructor
+     */
     public RadarChart()
     {
         super(EnumSet.of(SubSystem.SubSystemType.MAPPING));
         this.setTitle("Radar");
         this.dataReady = false;
+        displayRatio = 16;
         if(!isDependenciesMet()) return;
 
         try
@@ -59,47 +68,58 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
 
         try
         {
-            points_on_circle = rangeScanner.getStepsPerRevolution();
+            rangeValuesPerRotation = rangeScanner.getStepsPerRevolution();
         } catch (RemoteException e)
         {
             e.printStackTrace();
         }
-        JFreeChart radarChart = createRadarChart(createRadarDataset(points_on_circle));
+        displayPoints = rangeValuesPerRotation / displayRatio;
+        JFreeChart radarChart = createRadarChart(createRadarDataset(displayPoints));
         ChartPanel chartPanel = new ChartPanel(radarChart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(300, 270));
+        chartPanel.setPreferredSize(new java.awt.Dimension(plotSize, plotSize));
         chartPanel.setEnforceFileExtensions(false);
         setContentPane(chartPanel); //add the panel to the ApplicationFrame
-        this.setSize(500,500);
+        this.setSize(plotSize, plotSize);
         this.pack();
         this.setVisible(true);
     }
 
     private JFreeChart createRadarChart(DefaultCategoryDataset dataset)
     {
-        SpiderWebPlot webPlot = new SpiderWebPlot(dataset);
-        webPlot.setOutlineVisible(true);
+        SpiderWebPlot webPlot = new SpiderWebPlot(dataset, TableOrder.BY_ROW);
+        //webPlot.setOutlineVisible(true);
         webPlot.setStartAngle(270); // 0 is at 3 o'clock, we want 12 o'clock
-        webPlot.setWebFilled(true);
+        //webPlot.setWebFilled(true);
+        webPlot.setDirection(Rotation.CLOCKWISE);
         return new JFreeChart("Radar",null, webPlot,false);
     }
     private DefaultCategoryDataset createRadarDataset(int points)
     {
+        // see http://stackoverflow.com/questions/32862913/how-to-draw-a-spiderchart-above-a-existing-jfreechart
         angle = 360f/points;
         categoryDataset = new DefaultCategoryDataset();
         plotPoints = new double[points];
-        for( int i = 0; i<points_on_circle;i++)
+        for( int i = 0; i<points;i++)
         {
-            categoryDataset.addValue(50, "", ((Float)((float)i*angle)).toString());
+            categoryDataset.addValue(50+i, "", ((Float)((float)i*angle)).toString());
         }
         return categoryDataset;
     }
     private void setRadar(TimestampedData1f[] ranges)
     {
-        if (points_on_circle <= 0) return;
-        for (int i = 0; i<points_on_circle; i++)
+        float averageRange;
+        if (rangeValuesPerRotation <= 0) return;
+        if (displayPoints<=0) return;
+        for (int i = 0; i<ranges.length; i=i+displayRatio)
         {
-            plotPoints[i] = (double) ranges[i].getX();
-            categoryDataset.setValue(plotPoints[i],"",((Float)((float)i*angle)).toString());
+            averageRange=0;
+            for(int j = 0; j<displayRatio; j++)
+            {
+                averageRange+= ranges[i].getX();
+            }
+            averageRange/=displayRatio;
+            plotPoints[i] = averageRange;
+            categoryDataset.setValue(averageRange, "", ((Float) ((float) i * angle)).toString());
         }
     }
 
