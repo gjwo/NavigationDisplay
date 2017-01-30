@@ -3,6 +3,7 @@ import dataTypes.TimestampedData1f;
 import mapping.RemoteRangeScanner;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.SpiderWebPlot;
 import org.jfree.data.category.CategoryDataset;
@@ -94,6 +95,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         webPlot.setStartAngle(270); // 0 is at 3 o'clock, we want 12 o'clock
         //webPlot.setWebFilled(true);
         webPlot.setDirection(Rotation.CLOCKWISE);
+        webPlot.setMaxValue(1500); // > max range of  ranger in mm
         return new JFreeChart("Radar",null, webPlot,false);
     }
     private CategoryDataset createRadarDataset(int points)
