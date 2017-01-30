@@ -149,9 +149,10 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
                     this.setVisible(true);
                 }
                 TimeUnit.MILLISECONDS.sleep(500);
-                if(rangeScanner.lastUpdated().isAfter(lastUpdated))
+                Instant timeLastUpdated = rangeScanner.lastUpdated();
+                if(timeLastUpdated.isAfter(lastUpdated))
                 {
-                    lastUpdated = rangeScanner.lastUpdated();
+                    lastUpdated = timeLastUpdated;
                     dataUpdated();
                 }
             } catch (InterruptedException | RemoteException ignored) {}
