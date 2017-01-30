@@ -210,7 +210,7 @@ public class DynamicLineAndTimeSeriesChart extends SubSystemDependentJFrame impl
     	plotNav( this.navData.get(0)); //get the last reading from the circular array
     }*/
     private void plotNav(TimestampedData3f reading) {
-        final Millisecond thisMilliSec = new Millisecond(new Date(startTime + reading.getTime()/1000000L)); // construct epoch relative time using a fixed time.
+        final Millisecond thisMilliSec = new Millisecond(new Date(reading.getTime()/1000000L)); // construct epoch relative time using a fixed time.
         this.yawSeries.addOrUpdate(thisMilliSec, reading.getX());
         this.pitchSeries.addOrUpdate(thisMilliSec, reading.getY());
         this.rollSeries.addOrUpdate(thisMilliSec, reading.getZ());
