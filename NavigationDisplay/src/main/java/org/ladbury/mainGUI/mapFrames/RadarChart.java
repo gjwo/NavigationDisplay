@@ -119,10 +119,10 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
             averageRange=0;
             for(int j = 0; j<displayRatio; j++)
             {
-                averageRange+= ranges[i].getX();
+                averageRange+= ranges[j+i].getX();
             }
             averageRange/=displayRatio;
-            plotPoints[i] = averageRange;
+            plotPoints[i/displayRatio] = averageRange;
             //only one row in this dataset, could add times at a later point1
             categoryDataset.setValue(averageRange, "Radar", angleLable(i * angle));
         }
@@ -144,14 +144,12 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
             {
                 if (dataReady)
                 {
-                    System.out.println("dataReady = " + dataReady);
                     dataReady = false;
                     this.setRadar(rangeScanner.getRawRanges());
                     this.setVisible(true);
                 }
                 TimeUnit.MILLISECONDS.sleep(500);
                 Instant timeLastUpdated = rangeScanner.lastUpdated();
-                System.out.println("timeLastUpdated = " + timeLastUpdated.toString());
                 if(timeLastUpdated.isAfter(lastUpdated))
                 {
                     lastUpdated = timeLastUpdated;
