@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import main.RemoteMain;
 import org.ladbury.mainGUI.elements.SwingLogDisplay;
 import org.ladbury.mainGUI.elements.SystemManagerToolBar;
 import org.ladbury.mainGUI.elements.UiAboutBox;
@@ -64,7 +65,20 @@ public class MainGUI extends JFrame
 
         JMenuItem exit = new JMenuItem("Exit");
         exit.setToolTipText("Exit the application.");
-        exit.addActionListener(a -> System.exit(0));
+        exit.addActionListener(a ->
+            {
+                try
+                {
+                    ((RemoteMain)registry.lookup("Main")).exit(); ;
+                } catch (RemoteException e)
+                {
+                    e.printStackTrace();
+                } catch (NotBoundException e)
+                {
+                    e.printStackTrace();
+                }
+                System.exit(0);
+            });
 
         systemMenu.add(exit);
 

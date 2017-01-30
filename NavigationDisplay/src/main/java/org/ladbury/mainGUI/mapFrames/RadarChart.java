@@ -19,6 +19,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +38,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
     private DefaultCategoryDataset categoryDataset;
     private float angle;
     private final int displayRatio;
+    private Instant lastUpdated;
 
 
     /**
@@ -53,6 +55,8 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         try
         {
             this.rangeScanner = (RemoteRangeScanner) MainGUI.registry.lookup("RangeScanner");
+            lastUpdated = rangeScanner.lastUpdated();
+            rangeValuesPerRotation = rangeScanner.getStepsPerRevolution();
         } catch (RemoteException | NotBoundException e)
         {
             e.printStackTrace();
@@ -68,13 +72,6 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
                 thread.interrupt();
             }});
 
-        try
-        {
-            rangeValuesPerRotation = rangeScanner.getStepsPerRevolution();
-        } catch (RemoteException e)
-        {
-            e.printStackTrace();
-        }
         displayPoints = rangeValuesPerRotation / displayRatio;
         JFreeChart radarChart = createRadarChart(createRadarDataset(displayPoints));
         ChartPanel chartPanel = new ChartPanel(radarChart);
@@ -151,8 +148,12 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
                     this.setRadar(rangeScanner.getRawRanges());
                     this.setVisible(true);
                 }
-                // add wait for data ready call
                 TimeUnit.MILLISECONDS.sleep(500);
+                if(rangeScanner.lastUpdated().isAfter(lastUpdated))
+                {
+                    lastUpdated = rangeScanner.lastUpdated();
+                    dataUpdated();
+                }
             } catch (InterruptedException | RemoteException ignored) {}
         }
     }
