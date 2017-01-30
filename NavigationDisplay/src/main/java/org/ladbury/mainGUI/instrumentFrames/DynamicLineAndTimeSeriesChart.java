@@ -222,7 +222,7 @@ public class DynamicLineAndTimeSeriesChart extends SubSystemDependentJFrame impl
         while(!Thread.interrupted())
             try
             {
-                this.addReading(new TimestampedData3f(instruments.getTaitBryanAnglesD()));
+                this.addReading(instruments.getTaitBryanAnglesD());
                 //System.out.println("RMI data: " + instruments.getTaitBryanAnglesD().toString());
                 TimeUnit.MILLISECONDS.sleep(20);
             } catch (InterruptedException | RemoteException ignored) {}
