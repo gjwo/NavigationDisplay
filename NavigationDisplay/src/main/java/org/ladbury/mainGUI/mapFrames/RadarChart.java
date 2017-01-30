@@ -105,7 +105,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         //only one row in this dataset, could add times at a later point
         for( int i = 0; i<points;i++)
         {
-            categoryDataset.addValue(50+i, "Radar", angleLable(i * angle));
+            categoryDataset.addValue(50+i*5, "Radar", angleLable(i * angle));
         }
         return categoryDataset;
     }
@@ -124,7 +124,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
             averageRange/=displayRatio;
             plotPoints[i/displayRatio] = averageRange;
             //only one row in this dataset, could add times at a later point1
-            categoryDataset.setValue(averageRange, "Radar", angleLable(i * angle));
+            categoryDataset.setValue(averageRange, "Radar", angleLable(i/displayRatio * angle));
         }
     }
 
