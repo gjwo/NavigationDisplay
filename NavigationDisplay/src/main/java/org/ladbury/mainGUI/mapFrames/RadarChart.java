@@ -144,12 +144,14 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
             {
                 if (dataReady)
                 {
+                    System.out.println("dataReady = " + dataReady);
                     dataReady = false;
                     this.setRadar(rangeScanner.getRawRanges());
                     this.setVisible(true);
                 }
                 TimeUnit.MILLISECONDS.sleep(500);
                 Instant timeLastUpdated = rangeScanner.lastUpdated();
+                System.out.println("timeLastUpdated = " + timeLastUpdated.toString());
                 if(timeLastUpdated.isAfter(lastUpdated))
                 {
                     lastUpdated = timeLastUpdated;
