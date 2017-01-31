@@ -166,7 +166,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
                  RenderingHints.VALUE_ANTIALIAS_ON);
 
          // draw the visible objects, leaving the centre as background
-         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,MAX_RANGE,MAX_RANGE);
+         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,DELTA_X,DELTA_X);
          Area visibleObjects = new Area(radarExtent);
          Area boundary = new Area(path);
          visibleObjects.subtract(boundary);
