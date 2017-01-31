@@ -1,6 +1,5 @@
 package org.ladbury.mainGUI.mapFrames;
 
-import dataTypes.TimestampedData1f;
 import dataTypes.TimestampedData2f;
 import mapping.RemoteRangeScanner;
 import org.ladbury.mainGUI.MainGUI;
@@ -166,7 +165,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
                  RenderingHints.VALUE_ANTIALIAS_ON);
 
          // draw the visible objects, leaving the centre as background
-         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,DELTA_X,DELTA_X);
+         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,PREF_W,PREF_W);
          Area visibleObjects = new Area(radarExtent);
          Area boundary = new Area(path);
          visibleObjects.subtract(boundary);
