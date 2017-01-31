@@ -1,6 +1,7 @@
 package org.ladbury.mainGUI.mapFrames;
 
 import dataTypes.TimestampedData1f;
+import dataTypes.TimestampedData2f;
 import mapping.RemoteRangeScanner;
 import org.ladbury.mainGUI.MainGUI;
 import org.ladbury.mainGUI.SubSystemDependentJFrame;
@@ -35,15 +36,9 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
     private RemoteRangeScanner rangeScanner;
     private Thread thread;
     private volatile  boolean dataReady;
-    private int rangeValuesPerRotation;
-    private int displayPoints;
-    private double[] plotPoints;
-    private double[] angles;
-    private final int displayRatio;
     private Instant lastUpdated;
     private final int MAX_RANGE_MM = 1500;
     private RadarPanel radarPanel;
-
 
     /**
      * RadarChart   -   Constructor
@@ -53,14 +48,12 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
         super(EnumSet.of(SubSystem.SubSystemType.MAPPING));
         this.setTitle("Radar");
         this.dataReady = false;
-        displayRatio = 16;
         if(!isDependenciesMet()) return;
 
         try // get the source of data
         {
             this.rangeScanner = (RemoteRangeScanner) MainGUI.registry.lookup("RangeScanner");
             this.lastUpdated = rangeScanner.lastUpdated();
-            this.rangeValuesPerRotation = rangeScanner.getStepsPerRevolution();
         } catch (RemoteException | NotBoundException e)
         {
             e.printStackTrace();
@@ -75,18 +68,8 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
                 thread.interrupt();
             }});
 
-        // unchanging display parameters
-        displayPoints = rangeValuesPerRotation / displayRatio;
-        double angle = 360f / displayPoints;
-        plotPoints = new double[displayPoints];
-        angles = new double[displayPoints];
-        for( int i = 0; i<displayPoints;i++)
-        {
-            this.angles[i] = Math.toRadians(i * angle);
-        }
-
         // build the chart and display panel
-        radarPanel = new RadarPanel(displayPoints,MAX_RANGE_MM);
+        radarPanel = new RadarPanel(MAX_RANGE_MM);
         setContentPane(radarPanel); //add the panel to the ApplicationFrame
         this.setSize(radarPanel.getPreferredSize());
 
@@ -94,28 +77,6 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
         thread.start();
         this.pack();
         this.setVisible(true);
-    }
-
-    /**
-     * setRadar         -   Updates the radar display values
-     * @param ranges    -   an array of new values
-     */
-    private void setRadar(TimestampedData1f[] ranges)
-    {
-        float averageRange;
-        if (rangeValuesPerRotation <= 0) return;
-        if (displayPoints<=0) return;
-        for (int i = 0; i<ranges.length; i=i+displayRatio)
-        {
-            averageRange=0;
-            for(int j = 0; j<displayRatio; j++)
-            {
-                averageRange+= ranges[j+i].getX();
-            }
-            averageRange/=displayRatio;
-            this.plotPoints[i/displayRatio] = averageRange;
-            radarPanel.plot(this.angles,this.plotPoints);
-        }
     }
 
     /**
@@ -132,7 +93,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
                 if (dataReady)
                 {
                     dataReady = false;
-                    this.setRadar(rangeScanner.getRawRanges());
+                    this.radarPanel.plot(rangeScanner.getRawRanges());
                     repaint();
                     this.setVisible(true);
                 }
@@ -171,27 +132,20 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
      private static final Stroke EDGE_STROKE = new BasicStroke(2f);
      private static final Stroke RADAR_STROKE = new BasicStroke(4f);
      private final Path2D path = new Path2D.Double();
-     private final int DISPLAY_POINTS;
      private final int MAX_RANGE;
 
-     public RadarPanel(int displayPoints,int maxRange)
+     public RadarPanel(int maxRange)
      {
-         DISPLAY_POINTS = displayPoints;
          MAX_RANGE = maxRange;
          SCALE = DELTA_X/MAX_RANGE;
      }
 
-     public void plot(double[] angles, double[] ranges)
+     public void plot(TimestampedData2f[] ranges)
      {
-         if (angles.length != DISPLAY_POINTS )
+         for (int i = 0; i <ranges.length; i++)
          {
-             System.err.println("Radar Display points invalid");
-             return;
-         }
-         for (int i = 0; i <DISPLAY_POINTS; i++)
-         {
-             double dX = SCALE * ranges[i] * Math.cos(angles[i]) + DELTA_X;
-             double dY = SCALE * ranges[i] * Math.sin(angles[i]) + DELTA_Y;
+             double dX = SCALE * ranges[i].getX() * Math.cos(Math.toRadians(ranges[i].getY())) + DELTA_X;
+             double dY = SCALE * ranges[i].getX() * Math.sin(Math.toRadians(ranges[i].getY())) + DELTA_Y;
              if (i == 0)
              {
                  path.moveTo(dX, dY);
@@ -212,7 +166,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
                  RenderingHints.VALUE_ANTIALIAS_ON);
 
          // draw the visible objects, leaving the centre as background
-         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,PREF_W,PREF_H);
+         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,MAX_RANGE,MAX_RANGE);
          Area visibleObjects = new Area(radarExtent);
          Area boundary = new Area(path);
          visibleObjects.subtract(boundary);
