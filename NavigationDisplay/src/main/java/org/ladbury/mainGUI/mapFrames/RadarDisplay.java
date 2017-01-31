@@ -9,6 +9,7 @@ import subsystems.SubSystem;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -23,6 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import javax.swing.JPanel;
+import java.awt.geom.Area;
 
 /**
  * RadarChart   -   radar display for tank
@@ -39,7 +41,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
     private double[] angles;
     private final int displayRatio;
     private Instant lastUpdated;
-    private final float MAX_RANGE_MM = 1500f;
+    private final int MAX_RANGE_MM = 1500;
     private RadarPanel radarPanel;
 
 
@@ -76,13 +78,15 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
         // unchanging display parameters
         displayPoints = rangeValuesPerRotation / displayRatio;
         double angle = 360f / displayPoints;
+        plotPoints = new double[displayPoints];
+        angles = new double[displayPoints];
         for( int i = 0; i<displayPoints;i++)
         {
             this.angles[i] = Math.toRadians(i * angle);
         }
 
         // build the chart and display panel
-        radarPanel = new RadarPanel(displayPoints);
+        radarPanel = new RadarPanel(displayPoints,MAX_RANGE_MM);
         setContentPane(radarPanel); //add the panel to the ApplicationFrame
         this.setSize(radarPanel.getPreferredSize());
 
@@ -157,17 +161,24 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
      //adapted from http://stackoverflow.com/questions/31036718/drawing-four-leaf-rose-in-java
      private static final int PREF_W = 400;
      private static final int PREF_H = PREF_W;
-     private static final double SCALE = 1.0;
+     private final double SCALE;
      private static final double DELTA_X = PREF_W/2;
      private static final double DELTA_Y = DELTA_X;
+     private static final Color EDGE_COLOR = Color.black;
      private static final Color RADAR_COLOR = Color.blue;
+     private static final Color BACKGROUND_COLOR = Color.lightGray;
+     private static final Color OBJECT_COLOR = Color.darkGray;
+     private static final Stroke EDGE_STROKE = new BasicStroke(2f);
      private static final Stroke RADAR_STROKE = new BasicStroke(4f);
      private final Path2D path = new Path2D.Double();
      private final int DISPLAY_POINTS;
+     private final int MAX_RANGE;
 
-     public RadarPanel(int displayPoints)
+     public RadarPanel(int displayPoints,int maxRange)
      {
          DISPLAY_POINTS = displayPoints;
+         MAX_RANGE = maxRange;
+         SCALE = DELTA_X/MAX_RANGE;
      }
 
      public void plot(double[] angles, double[] ranges)
@@ -199,6 +210,21 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
          Graphics2D g2 = (Graphics2D) g;
          g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                  RenderingHints.VALUE_ANTIALIAS_ON);
+
+         // draw the visible objects, leaving the centre as background
+         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,PREF_W,PREF_H);
+         Area visibleObjects = new Area(radarExtent);
+         Area boundary = new Area(path);
+         visibleObjects.subtract(boundary);
+         g2.setPaint(OBJECT_COLOR);
+         g2.setBackground(BACKGROUND_COLOR);
+         g2.fill(radarExtent);
+
+         //colour in the edges
+         g2.setColor(EDGE_COLOR);
+         g2.setStroke(EDGE_STROKE);
+         g2.drawOval((int)DELTA_X-1,(int)DELTA_Y-1,2,2); // draw the center point
+         g2.draw(radarExtent); //draw a circle at edge of range
          g2.setColor(RADAR_COLOR);
          g2.setStroke(RADAR_STROKE);
          g2.draw(path);
