@@ -1,5 +1,4 @@
 package org.ladbury.mainGUI.mapFrames;
-import dataTypes.TimestampedData1f;
 import dataTypes.TimestampedData2f;
 import mapping.RemoteRangeScanner;
 import org.jfree.chart.ChartPanel;

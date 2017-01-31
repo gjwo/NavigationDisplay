@@ -23,11 +23,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.geom.Area;
 
 /**
- * RadarChart   -   radar display for tank
+ * RadarChart   -   radar display, polls RangeScanner for updated radar data and displays it
  * Created by GJWood on 31/01/2017.
  */
 public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, UpdateListener
@@ -36,7 +36,6 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
     private Thread thread;
     private volatile  boolean dataReady;
     private Instant lastUpdated;
-    private final int MAX_RANGE_MM = 1500;
     private RadarPanel radarPanel;
 
     /**
@@ -68,9 +67,11 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
             }});
 
         // build the chart and display panel
+        int MAX_RANGE_MM = 1500;
         radarPanel = new RadarPanel(MAX_RANGE_MM);
         setContentPane(radarPanel); //add the panel to the ApplicationFrame
         this.setSize(radarPanel.getPreferredSize());
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // start the display and display the initial chart
         thread.start();
@@ -116,13 +117,18 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
         dataReady = true;
     }
 }
- class RadarPanel extends JPanel
+
+/**
+ * RadarPanel   -   Displays a set of radar data
+ */
+class RadarPanel extends JPanel
  {
      //adapted from http://stackoverflow.com/questions/31036718/drawing-four-leaf-rose-in-java
      private static final int PREF_W = 400;
      private static final int PREF_H = PREF_W;
      private final double SCALE;
      private static final double DELTA_X = PREF_W/2;
+     @SuppressWarnings("SuspiciousNameCombination")
      private static final double DELTA_Y = DELTA_X;
      private static final Color EDGE_COLOR = Color.black;
      private static final Color RADAR_COLOR = Color.blue;
@@ -131,14 +137,20 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
      private static final Stroke EDGE_STROKE = new BasicStroke(2f);
      private static final Stroke RADAR_STROKE = new BasicStroke(4f);
      private final Path2D path = new Path2D.Double();
-     private final int MAX_RANGE;
 
+     /**
+      * RadarPanel          -   Constructor
+      * @param maxRange     -   the Range of the radar, for scaling
+      */
      public RadarPanel(int maxRange)
      {
-         MAX_RANGE = maxRange;
-         SCALE = DELTA_X/MAX_RANGE;
+         SCALE = DELTA_X/ maxRange;
      }
 
+     /**
+      * plot            -   Plots the radar data received
+      * @param ranges   -   Polar coordinates .X contains range, .Y contains angle in degrees
+      */
      public void plot(TimestampedData2f[] ranges)
      {
          for (int i = 0; i <ranges.length; i++)
@@ -156,6 +168,10 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
          path.closePath();
      }
 
+     /**
+      * paintComponent  -   draws the radar display
+      * @param g        -   graphics plane
+      */
      @Override
      protected void paintComponent(Graphics g)
      {
@@ -172,7 +188,8 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
          g2.setPaint(OBJECT_COLOR);
          g2.setBackground(BACKGROUND_COLOR);
          g2.fill(radarExtent);
-
+         g2.setColor(BACKGROUND_COLOR);
+         g2.fill(path);
          //colour in the edges
          g2.setColor(EDGE_COLOR);
          g2.setStroke(EDGE_STROKE);
@@ -181,6 +198,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
          g2.setColor(RADAR_COLOR);
          g2.setStroke(RADAR_STROKE);
          g2.draw(path);
+
      }
 
      @Override

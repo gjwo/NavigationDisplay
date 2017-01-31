@@ -41,7 +41,6 @@ public class DynamicLineAndTimeSeriesChart extends SubSystemDependentJFrame impl
     private final TimeSeries yawSeries;
     private final TimeSeries pitchSeries;
     private final TimeSeries rollSeries;
-    private long startTime;
 
     private Thread thread;
     private RemoteInstruments instruments;
@@ -78,7 +77,7 @@ public class DynamicLineAndTimeSeriesChart extends SubSystemDependentJFrame impl
         content.add(chartPanel);										//Added chartPanel to org.ladbury.main panel
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 500)); 	//Sets the size of whole window (JPanel)
         setContentPane(content);         								//Puts the whole content on a Frame
-        startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         this.pack();
         this.setVisible(true);

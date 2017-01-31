@@ -70,11 +70,8 @@ public class MainGUI extends JFrame
             {
                 try
                 {
-                    ((RemoteMain)registry.lookup("Main")).exit(); ;
-                } catch (RemoteException e)
-                {
-                    e.printStackTrace();
-                } catch (NotBoundException e)
+                    ((RemoteMain)registry.lookup("Main")).exit();
+                } catch (RemoteException | NotBoundException e)
                 {
                     e.printStackTrace();
                 }
