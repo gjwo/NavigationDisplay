@@ -3,7 +3,6 @@ import dataTypes.TimestampedData1f;
 import mapping.RemoteRangeScanner;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.SpiderWebPlot;
 import org.jfree.data.category.CategoryDataset;
@@ -33,10 +32,10 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
     private Thread thread;
     private volatile  boolean dataReady;
     private int rangeValuesPerRotation;
-    private int displayPoints; // no of categories diplayed on chart
+    private int displayPoints; // no of categories displayed on chart
     private double[] plotPoints;
     private DefaultCategoryDataset categoryDataset;
-    private float angle;
+    private String[] angleLabels;
     private final int displayRatio;
     private Instant lastUpdated;
 
@@ -52,7 +51,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         displayRatio = 16;
         if(!isDependenciesMet()) return;
 
-        try
+        try // get the source of data
         {
             this.rangeScanner = (RemoteRangeScanner) MainGUI.registry.lookup("RangeScanner");
             lastUpdated = rangeScanner.lastUpdated();
@@ -63,7 +62,6 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         }
 
         thread = new Thread(this);
-        thread.start();
         this.addWindowListener(new WindowAdapter()
         {
             @Override
@@ -72,7 +70,11 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
                 thread.interrupt();
             }});
 
+        // display parameters
         displayPoints = rangeValuesPerRotation / displayRatio;
+        angleLabels = new String[displayPoints];
+
+        // build the chard and display panel
         JFreeChart radarChart = createRadarChart(createRadarDataset(displayPoints));
         ChartPanel chartPanel = new ChartPanel(radarChart);
         int plotSize = 500;
@@ -80,10 +82,18 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         chartPanel.setEnforceFileExtensions(false);
         setContentPane(chartPanel); //add the panel to the ApplicationFrame
         this.setSize(plotSize, plotSize);
+
+        // start the display and display the initial chart
+        thread.start();
         this.pack();
         this.setVisible(true);
     }
 
+    /**
+     * createRadarChart -   A spiderweb chart to act as a radar display
+     * @param dataset   -   The chart's labelled dataset
+     * @return          -   the spiderweb chart
+     */
     private JFreeChart createRadarChart(CategoryDataset dataset)
     {
         SpiderWebPlot webPlot = new SpiderWebPlot(dataset, TableOrder.BY_ROW);
@@ -95,20 +105,32 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
         webPlot.setMaxValue(1500); // > max range of  ranger in mm
         return new JFreeChart("Radar",null, webPlot,false);
     }
+
+    /**
+     * createRadarDataset   -   creates the initial dataset for the display
+     * @param points        -   the number of points to be displayed
+     * @return              -   labelled dataset, with test pattern
+     */
     private CategoryDataset createRadarDataset(int points)
     {
         // see http://stackoverflow.com/questions/32862913/how-to-draw-a-spiderchart-above-a-existing-jfreechart
         // and http://www.jfree.org/phpBB2/viewtopic.php?f=3&t=28485
-        angle = 360f/points;
+        float angle = 360f / points;
         categoryDataset = new DefaultCategoryDataset();
         plotPoints = new double[points];
         //only one row in this dataset, could add times at a later point
         for( int i = 0; i<points;i++)
         {
-            categoryDataset.addValue(50+i*5, "Radar", angleLable(i * angle));
+            angleLabels[i] = angleLable(i * angle);
+            categoryDataset.addValue(50+i*5, "Radar", angleLabels[i]);
         }
         return categoryDataset;
     }
+
+    /**
+     * setRadar         -   Updates the radar display values
+     * @param ranges    -   an array of new values
+     */
     private void setRadar(TimestampedData1f[] ranges)
     {
         float averageRange;
@@ -124,7 +146,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
             averageRange/=displayRatio;
             plotPoints[i/displayRatio] = averageRange;
             //only one row in this dataset, could add times at a later point1
-            categoryDataset.setValue(averageRange, "Radar", angleLable(i/displayRatio * angle));
+            categoryDataset.setValue(averageRange, "Radar", angleLabels[i/displayRatio]);
         }
     }
 
@@ -135,9 +157,13 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
      */
     private String angleLable(float totalAngle){return ((Float) ((float) totalAngle)).toString();}
 
+    /**
+     * Run  -   main display loop for updating the chart
+     */
     @Override
     public void run()
     {
+        Instant timeLastUpdated;
         while (!Thread.interrupted())
         {
             try
@@ -149,7 +175,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
                     this.setVisible(true);
                 }
                 TimeUnit.MILLISECONDS.sleep(500);
-                Instant timeLastUpdated = rangeScanner.lastUpdated();
+                timeLastUpdated = rangeScanner.lastUpdated();
                 if(timeLastUpdated.isAfter(lastUpdated))
                 {
                     lastUpdated = timeLastUpdated;
@@ -158,6 +184,10 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
             } catch (InterruptedException | RemoteException ignored) {}
         }
     }
+
+    /**
+     * dataUpdated  -   a new set of data is ready (triggered internally or externally)
+     */
     @Override
     public void dataUpdated()
     {
