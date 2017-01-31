@@ -2,9 +2,6 @@ package org.ladbury.mainGUI.mapFrames;
 
 import dataTypes.TimestampedData1f;
 import mapping.RemoteRangeScanner;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.ladbury.mainGUI.MainGUI;
 import org.ladbury.mainGUI.SubSystemDependentJFrame;
 import sensors.interfaces.UpdateListener;
@@ -104,7 +101,6 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
         float averageRange;
         if (rangeValuesPerRotation <= 0) return;
         if (displayPoints<=0) return;
-        boolean isFirst = true;
         for (int i = 0; i<ranges.length; i=i+displayRatio)
         {
             averageRange=0;
@@ -166,7 +162,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
      private static final double DELTA_Y = DELTA_X;
      private static final Color RADAR_COLOR = Color.blue;
      private static final Stroke RADAR_STROKE = new BasicStroke(4f);
-     private Path2D path = new Path2D.Double();
+     private final Path2D path = new Path2D.Double();
      private final int DISPLAY_POINTS;
 
      public RadarPanel(int displayPoints)
