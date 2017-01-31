@@ -1,5 +1,6 @@
 package org.ladbury.mainGUI.mapFrames;
 import dataTypes.TimestampedData1f;
+import dataTypes.TimestampedData2f;
 import mapping.RemoteRangeScanner;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -131,7 +132,7 @@ public class RadarChart extends SubSystemDependentJFrame implements Runnable, Up
      * setRadar         -   Updates the radar display values
      * @param ranges    -   an array of new values
      */
-    private void setRadar(TimestampedData1f[] ranges)
+    private void setRadar(TimestampedData2f[] ranges)
     {
         float averageRange;
         if (rangeValuesPerRotation <= 0) return;
