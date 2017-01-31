@@ -14,6 +14,7 @@ import java.awt.geom.Path2D;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 import java.awt.BasicStroke;
@@ -23,7 +24,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.geom.Area;
 
 /**
@@ -41,7 +42,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
     private double[] angles;
     private final int displayRatio;
     private Instant lastUpdated;
-    private final int MAX_RANGE_MM = 1500;
+    private final int MAX_RANGE_MM = 150;
     private RadarPanel radarPanel;
 
 
@@ -51,9 +52,10 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
     public RadarDisplay()
     {
         super(EnumSet.of(SubSystem.SubSystemType.MAPPING));
+        this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         this.setTitle("Radar");
         this.dataReady = false;
-        displayRatio = 16;
+        displayRatio = 2;
         if(!isDependenciesMet()) return;
 
         try // get the source of data
@@ -113,7 +115,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
                 averageRange+= ranges[j+i].getX();
             }
             averageRange/=displayRatio;
-            this.plotPoints[i/displayRatio] = averageRange;
+            this.plotPoints[i/displayRatio] = ranges[i].getX();// averageRange;
             radarPanel.plot(this.angles,this.plotPoints);
         }
     }
@@ -170,7 +172,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
      private static final Color OBJECT_COLOR = Color.darkGray;
      private static final Stroke EDGE_STROKE = new BasicStroke(2f);
      private static final Stroke RADAR_STROKE = new BasicStroke(4f);
-     private final Path2D path = new Path2D.Double();
+     private Path2D path = new Path2D.Double();
      private final int DISPLAY_POINTS;
      private final int MAX_RANGE;
 
@@ -183,6 +185,8 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
 
      public void plot(double[] angles, double[] ranges)
      {
+         path = new Path2D.Double();
+         System.out.println("ranges = " + Arrays.toString(ranges));
          if (angles.length != DISPLAY_POINTS )
          {
              System.err.println("Radar Display points invalid");
