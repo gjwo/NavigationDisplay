@@ -22,7 +22,7 @@ public class RadarPanel extends JPanel
  private static final Color EDGE_COLOR = Color.black;
  private static final Color RADAR_COLOR = Color.blue;
  private static final Color BACKGROUND_COLOR = Color.lightGray;
- private static final Color OBJECT_COLOR = Color.darkGray;
+ private static final Color OBJECT_COLOR = Color.gray;
  private static final Stroke EDGE_STROKE = new BasicStroke(2f);
  private static final Stroke RADAR_STROKE = new BasicStroke(4f);
  private final Path2D path = new Path2D.Double();
