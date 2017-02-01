@@ -65,7 +65,6 @@ public class RadarPanel extends JPanel
                  path.moveTo(dX, dY);
              } else path.lineTo(dX, dY);
          }
-         System.out.println("point = " + point);
          path.closePath();
      }
 
