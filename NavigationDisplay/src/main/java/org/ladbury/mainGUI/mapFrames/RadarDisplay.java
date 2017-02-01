@@ -55,7 +55,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
             }});
 
         // build the chart and display panel
-        int MAX_RANGE_MM = 1500;
+        int MAX_RANGE_MM = 2000;
         radarPanel = new RadarPanel(MAX_RANGE_MM);
         setContentPane(radarPanel); //add the panel to the ApplicationFrame
         this.setSize(radarPanel.getPreferredSize());

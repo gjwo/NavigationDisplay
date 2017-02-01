@@ -12,20 +12,21 @@ import java.awt.geom.Path2D;
  */
 public class RadarPanel extends JPanel
 {
- //adapted from http://stackoverflow.com/questions/31036718/drawing-four-leaf-rose-in-java
- private static final int PREF_W = 400;
- private static final int PREF_H = PREF_W;
- private final double SCALE;
- private static final double DELTA_X = PREF_W/2;
- @SuppressWarnings("SuspiciousNameCombination")
- private static final double DELTA_Y = DELTA_X;
- private static final Color EDGE_COLOR = Color.black;
- private static final Color RADAR_COLOR = Color.blue;
- private static final Color BACKGROUND_COLOR = Color.lightGray;
- private static final Color OBJECT_COLOR = Color.gray;
- private static final Stroke EDGE_STROKE = new BasicStroke(2f);
- private static final Stroke RADAR_STROKE = new BasicStroke(4f);
- private Path2D path = new Path2D.Double();
+    private static final int PREF_W = 400;
+    private static final int PREF_H = PREF_W;
+    private static final Color EDGE_COLOR = Color.black;
+    private static final Color RADAR_COLOR = Color.blue;
+    private static final Color BACKGROUND_COLOR = Color.lightGray;
+    private static final Color OBJECT_COLOR = Color.gray;
+    private static final Stroke EDGE_STROKE = new BasicStroke(2f);
+    private static final Stroke RADAR_STROKE = new BasicStroke(4f);
+    private double scale;
+    private double centreX;
+    private  double centreY;
+    private Path2D path;
+    private int panelHight;
+    private int panelWidth;
+    private int maxRange;
 
      /**
       * RadarPanel          -   Constructor
@@ -33,7 +34,13 @@ public class RadarPanel extends JPanel
       */
      public RadarPanel(int maxRange)
      {
-         SCALE = DELTA_X/ maxRange;
+         this.maxRange = maxRange;
+         this.centreX = PREF_W/2;
+         this.centreY = PREF_H/2;
+         this.scale = Math.min(PREF_W,PREF_H)/2/maxRange;
+         this.panelHight = PREF_H;
+         this.panelWidth = PREF_W;
+         this.path = new Path2D.Double();
      }
 
      /**
@@ -45,8 +52,8 @@ public class RadarPanel extends JPanel
          path = new Path2D.Double();
          for (int i = 0; i <ranges.length; i++)
          {
-             double dX = SCALE * ranges[i].getX() * Math.cos(Math.toRadians(ranges[i].getY())) + DELTA_X;
-             double dY = SCALE * ranges[i].getX() * Math.sin(Math.toRadians(ranges[i].getY())) + DELTA_Y;
+             double dX = scale * ranges[i].getX() * Math.cos(Math.toRadians(ranges[i].getY())) + centreX;
+             double dY = scale * ranges[i].getX() * Math.sin(Math.toRadians(ranges[i].getY())) + centreY;
              if (i == 0)
              {
                  path.moveTo(dX, dY);
@@ -65,13 +72,19 @@ public class RadarPanel extends JPanel
      @Override
      protected void paintComponent(Graphics g)
      {
+         panelWidth = getWidth();
+         panelHight = getHeight();
+         centreX = panelWidth/2;
+         centreY = panelHight/2;
+         int panelMinDim = Math.min(panelWidth,panelHight);
+         scale = panelMinDim/2/maxRange;
          super.paintComponent(g);
          Graphics2D g2 = (Graphics2D) g;
          g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                  RenderingHints.VALUE_ANTIALIAS_ON);
 
          // draw the visible objects, leaving the centre as background
-         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,PREF_W,PREF_W);
+         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,panelMinDim,panelMinDim);
          Area visibleObjects = new Area(radarExtent);
          Area boundary = new Area(path);
          visibleObjects.subtract(boundary);
@@ -83,7 +96,7 @@ public class RadarPanel extends JPanel
          //colour in the edges
          g2.setColor(EDGE_COLOR);
          g2.setStroke(EDGE_STROKE);
-         g2.drawOval((int)DELTA_X-1,(int)DELTA_Y-1,2,2); // draw the center point
+         g2.drawOval((int) centreX -1,(int) centreY -1,2,2); // draw the center point
          g2.draw(radarExtent); //draw a circle at edge of range
          g2.setColor(RADAR_COLOR);
          g2.setStroke(RADAR_STROKE);
