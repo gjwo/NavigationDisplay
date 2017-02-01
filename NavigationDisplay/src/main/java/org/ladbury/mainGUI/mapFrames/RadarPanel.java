@@ -88,7 +88,7 @@ public class RadarPanel extends JPanel
                  RenderingHints.VALUE_ANTIALIAS_ON);
 
          // draw the visible objects, leaving the centre as background
-         Ellipse2D.Double radarExtent = new Ellipse2D.Double(0,0,panelMinDim,panelMinDim);
+         Ellipse2D.Double radarExtent = new Ellipse2D.Double(centreX-panelMinDim/2f,centreY-panelMinDim/2f,panelMinDim,panelMinDim);
          Area visibleObjects = new Area(radarExtent);
          Area boundary = new Area(path);
          visibleObjects.subtract(boundary);
