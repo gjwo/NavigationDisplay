@@ -81,8 +81,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
                 if (dataReady)
                 {
                     dataReady = false;
-
-                        this.radarPanel.plot(rangeScanner.getRawRanges());
+                    this.radarPanel.plot(rangeScanner.getRawRanges());
                     repaint();
                     this.setVisible(true);
                 }

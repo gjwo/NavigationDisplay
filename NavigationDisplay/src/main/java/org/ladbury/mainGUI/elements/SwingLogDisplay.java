@@ -96,19 +96,16 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
             try
             {
                 remoteEntries = ((RemoteLog) registry.lookup("Log")).getEntries();
-            } catch (RemoteException | NotBoundException ignored) {}
-            if(count < remoteEntries.size())
-            {
-                for(; count<remoteEntries.size(); count++)
+                if(count < remoteEntries.size())
                 {
-                    localEntries.add(remoteEntries.get(count));
-                }
-                updateText();
-            } else
-                try
-                {
+                    for(; count<remoteEntries.size(); count++)
+                    {
+                        localEntries.add(remoteEntries.get(count));
+                    }
+                    updateText();
+                } else
                     Thread.sleep(100);
-                } catch (InterruptedException ignored) {}
+            } catch (RemoteException | NotBoundException | InterruptedException ignored) {}
         }
     }
 

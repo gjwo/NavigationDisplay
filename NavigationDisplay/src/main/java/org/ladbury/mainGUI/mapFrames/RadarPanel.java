@@ -25,7 +25,7 @@ public class RadarPanel extends JPanel
  private static final Color OBJECT_COLOR = Color.gray;
  private static final Stroke EDGE_STROKE = new BasicStroke(2f);
  private static final Stroke RADAR_STROKE = new BasicStroke(4f);
- private final Path2D path = new Path2D.Double();
+ private Path2D path = new Path2D.Double();
 
      /**
       * RadarPanel          -   Constructor
@@ -42,6 +42,7 @@ public class RadarPanel extends JPanel
       */
      public void plot(TimestampedData2f[] ranges)
      {
+         path = new Path2D.Double();
          for (int i = 0; i <ranges.length; i++)
          {
              double dX = SCALE * ranges[i].getX() * Math.cos(Math.toRadians(ranges[i].getY())) + DELTA_X;
