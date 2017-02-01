@@ -102,7 +102,7 @@ public class RadarDisplay extends SubSystemDependentJFrame implements Runnable, 
                 if(timeLastUpdated.isAfter(lastUpdated))
                 {
                     lastUpdated = timeLastUpdated;
-                    dataUpdated();
+                    dataReady = true;
                 }
             } catch (InterruptedException | RemoteException ignored) {}
         }
