@@ -12,7 +12,6 @@ import org.ladbury.mainGUI.elements.SwingLogDisplay;
 import org.ladbury.mainGUI.elements.SystemManagerToolBar;
 import org.ladbury.mainGUI.elements.UiAboutBox;
 import org.ladbury.mainGUI.instrumentFrames.*;
-import org.ladbury.mainGUI.mapFrames.RadarChart;
 import org.ladbury.mainGUI.mapFrames.RadarDisplay;
 import org.ladbury.mainGUI.motorFrames.MotorControlFrame;
 
@@ -109,10 +108,6 @@ public class MainGUI extends JFrame
 
         // Mapping menu
         JMenu MappingMenu = new JMenu("Mapping");
-
-        JMenuItem radarChart = new JMenuItem("Radar Chart");
-        radarChart.addActionListener(a -> new RadarChart());
-        MappingMenu.add(radarChart);
 
         JMenuItem radarDisplay = new JMenuItem("Radar Display");
         radarDisplay.addActionListener(a -> new RadarDisplay());
