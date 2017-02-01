@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
+import java.util.Arrays;
 
 /**
  * RadarPanel   -   Displays a set of radar data
@@ -27,20 +28,22 @@ public class RadarPanel extends JPanel
     private int panelHight;
     private int panelWidth;
     private int maxRange;
+    private final float cutOffThreshold;
 
      /**
       * RadarPanel          -   Constructor
       * @param maxRange     -   the Range of the radar, for scaling
       */
-     public RadarPanel(int maxRange)
+     public RadarPanel(int maxRange, float cutOffThreshold)
      {
          this.maxRange = maxRange;
          this.centreX = PREF_W/2;
          this.centreY = PREF_H/2;
-         this.scale = Math.min(PREF_W,PREF_H)/2/maxRange;
+         this.scale = (Math.min(PREF_W,PREF_H)/2f)/(float)maxRange;
          this.panelHight = PREF_H;
          this.panelWidth = PREF_W;
-         this.path = new Path2D.Double();
+         this.cutOffThreshold = cutOffThreshold;
+         path = new Path2D.Double();
      }
 
      /**
@@ -49,19 +52,20 @@ public class RadarPanel extends JPanel
       */
      public void plot(TimestampedData2f[] ranges)
      {
+         float point = 0;
          path = new Path2D.Double();
-         for (int i = 0; i <ranges.length; i++)
+         for(TimestampedData2f range:ranges)
          {
-             double dX = scale * ranges[i].getX() * Math.cos(Math.toRadians(ranges[i].getY())) + centreX;
-             double dY = scale * ranges[i].getX() * Math.sin(Math.toRadians(ranges[i].getY())) + centreY;
-             if (i == 0)
+             if(range.getX() > cutOffThreshold) range.setX(maxRange);
+             point = Math.max(point, range.getX());
+             double dX = (scale * range.getX() * Math.cos(Math.toRadians(range.getY()))) + centreX;
+             double dY = (scale * range.getX() * Math.sin(Math.toRadians(range.getY()))) + centreY;
+             if (path.getCurrentPoint() == null)
              {
                  path.moveTo(dX, dY);
-             } else
-             {
-                 path.lineTo(dX, dY);
-             }
+             } else path.lineTo(dX, dY);
          }
+         System.out.println("point = " + point);
          path.closePath();
      }
 
@@ -76,8 +80,8 @@ public class RadarPanel extends JPanel
          panelHight = getHeight();
          centreX = panelWidth/2;
          centreY = panelHight/2;
-         int panelMinDim = Math.min(panelWidth,panelHight);
-         scale = panelMinDim/2/maxRange;
+         float panelMinDim = Math.min(panelWidth,panelHight);
+         scale = panelMinDim/2f/(float)maxRange;
          super.paintComponent(g);
          Graphics2D g2 = (Graphics2D) g;
          g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
