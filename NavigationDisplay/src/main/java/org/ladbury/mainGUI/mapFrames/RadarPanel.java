@@ -1,5 +1,7 @@
 package org.ladbury.mainGUI.mapFrames;
 
+import dataTypes.PolarCoordinatesD;
+import dataTypes.TimeStampedPolarCoordD;
 import dataTypes.TimestampedData2f;
 import javax.swing.*;
 import java.awt.*;
@@ -68,7 +70,51 @@ public class RadarPanel extends JPanel
          path.closePath();
      }
 
-     /**
+    /**
+     * plot            -   Plots the radar data received
+     * @param polars   -   Polar coordinates in radians
+     */
+    public void plot(TimeStampedPolarCoordD[] polars)
+    {
+        double point = 0;
+        path = new Path2D.Double();
+        for(TimeStampedPolarCoordD polar:polars)
+        {
+            if(polar.getData().getR() > cutOffThreshold) polar.getData().setR(maxRange); //suspect!
+            point = Math.max(point, polar.getData().getR());
+            double dX = (scale * polar.getData().getR() * Math.cos(polar.getData().getR())) + centreX;
+            double dY = (scale * polar.getData().getR() * Math.sin(polar.getData().getR())) + centreY;
+            if (path.getCurrentPoint() == null)
+            {
+                path.moveTo(dX, dY);
+            } else path.lineTo(dX, dY);
+        }
+        path.closePath();
+    }
+
+    /**
+     * plot            -   Plots the radar data received
+     * @param polars   -   Polar coordinates in radians
+     */
+    public void plot(PolarCoordinatesD[] polars)
+    {
+        double point = 0;
+        path = new Path2D.Double();
+        for(PolarCoordinatesD polar:polars)
+        {
+            if(polar.getR() > cutOffThreshold) polar.setR(maxRange);
+            point = Math.max(point, polar.getR());
+            double dX = (scale * polar.getR() * Math.cos(polar.getR())) + centreX;
+            double dY = (scale * polar.getR() * Math.sin(polar.getR())) + centreY;
+            if (path.getCurrentPoint() == null)
+            {
+                path.moveTo(dX, dY);
+            } else path.lineTo(dX, dY);
+        }
+        path.closePath();
+    }
+
+    /**
       * paintComponent  -   draws the radar display
       * @param g        -   graphics plane
       */
