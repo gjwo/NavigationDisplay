@@ -58,6 +58,7 @@ public class RadarPanel extends JPanel
          path = new Path2D.Double();
          for(TimestampedData2f range:ranges)
          {
+             if(range == null) continue;
              if(range.getX() > cutOffThreshold) range.setX(maxRange);
              point = Math.max(point, range.getX());
              double dX = (scale * range.getX() * Math.cos(Math.toRadians(range.getY()))) + centreX;
@@ -80,10 +81,11 @@ public class RadarPanel extends JPanel
         path = new Path2D.Double();
         for(TimeStampedPolarCoordD polar:polars)
         {
+            if(polar == null) continue;
             if(polar.getData().getR() > cutOffThreshold) polar.getData().setR(maxRange); //suspect!
             point = Math.max(point, polar.getData().getR());
-            double dX = (scale * polar.getData().getR() * Math.cos(polar.getData().getR())) + centreX;
-            double dY = (scale * polar.getData().getR() * Math.sin(polar.getData().getR())) + centreY;
+            double dX = (scale * polar.getData().getR() * Math.cos(polar.getData().getTheta())) + centreX;
+            double dY = (scale * polar.getData().getR() * Math.sin(polar.getData().getTheta())) + centreY;
             if (path.getCurrentPoint() == null)
             {
                 path.moveTo(dX, dY);
@@ -104,8 +106,8 @@ public class RadarPanel extends JPanel
         {
             if(polar.getR() > cutOffThreshold) polar.setR(maxRange);
             point = Math.max(point, polar.getR());
-            double dX = (scale * polar.getR() * Math.cos(polar.getR())) + centreX;
-            double dY = (scale * polar.getR() * Math.sin(polar.getR())) + centreY;
+            double dX = (scale * polar.getR() * Math.cos(polar.getTheta())) + centreX;
+            double dY = (scale * polar.getR() * Math.sin(polar.getTheta())) + centreY;
             if (path.getCurrentPoint() == null)
             {
                 path.moveTo(dX, dY);
