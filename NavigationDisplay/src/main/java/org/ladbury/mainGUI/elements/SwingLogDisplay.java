@@ -40,7 +40,7 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
         this.setLayout(new BorderLayout());
 
         this.count = 0;
-        this.viewingLevel = LogLevel.TRACE_MAJOR_STATES.getLevel();
+        this.viewingLevel = LogLevel.USER_INFORMATION.getLevel();
         this.localEntries = new ArrayList<>();
 
         this.registry = registry;
@@ -121,6 +121,15 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
         textArea.setText(text);
     }
 
+    private void filterLog( int level)
+    {
+        String text;
+        text = localEntries.stream()
+                            .filter(le -> le.level.getLevel() <= level)
+                            .toString()+System.lineSeparator();
+        textArea.setText(text);
+    }
+
     @SuppressWarnings("unused")
     public void stop()
     {
@@ -131,6 +140,6 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
     public void stateChanged(ChangeEvent e)
     {
         viewingLevel = (int)levelSpinner.getValue();
-        updateText();
+        filterLog(viewingLevel);
     }
 }
