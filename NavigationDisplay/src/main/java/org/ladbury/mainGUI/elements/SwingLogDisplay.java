@@ -111,23 +111,16 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
 
     private void updateText()
     {
-        String text = "";
-        for(LogEntry entry:localEntries)
-        {
-            if(entry.level.getLevel() > viewingLevel) continue;
-            text += entry.toString();
-            text += System.lineSeparator();
-        }
-        textArea.setText(text);
+
+        textArea.setText(filterLog(viewingLevel));
     }
 
-    private void filterLog( int level)
+    private String filterLog( int level)
     {
-        String text;
-        text = localEntries.stream()
+        return localEntries.stream()
                             .filter(le -> le.level.getLevel() <= level)
-                            .toString()+System.lineSeparator();
-        textArea.setText(text);
+                            .map(le ->le.toString()+System.lineSeparator())
+                            .reduce("",String::concat);
     }
 
     @SuppressWarnings("unused")
@@ -140,6 +133,6 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
     public void stateChanged(ChangeEvent e)
     {
         viewingLevel = (int)levelSpinner.getValue();
-        filterLog(viewingLevel);
+        updateText();
     }
 }
