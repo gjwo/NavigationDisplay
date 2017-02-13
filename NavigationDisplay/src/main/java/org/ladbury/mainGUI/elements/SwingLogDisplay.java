@@ -32,7 +32,8 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
 
     private final JTextArea textArea;
     private final JSpinner levelSpinner;
-    private int viewingLevel;
+    private volatile int viewingLevel;
+    private volatile boolean levelChanged;
 
     public SwingLogDisplay(Registry registry)
     {
@@ -41,6 +42,7 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
 
         this.count = 0;
         this.viewingLevel = LogLevel.USER_INFORMATION.getLevel();
+        this.levelChanged = false;
         this.localEntries = new ArrayList<>();
 
         this.registry = registry;
@@ -90,9 +92,10 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
     @Override
     public void run()
     {
+        boolean textChanged;
         while(!Thread.interrupted())
         {
-
+            textChanged = false;
             try
             {
                 remoteEntries = ((RemoteLog) registry.lookup("Log")).getEntries();
@@ -102,9 +105,15 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
                     {
                         localEntries.add(remoteEntries.get(count));
                     }
-                    updateText();
-                } else
-                    Thread.sleep(100);
+                    textChanged = true;
+                }
+                if (levelChanged)
+                {
+                    levelChanged = false;
+                    textChanged = true;
+                }
+                if (textChanged) updateText();
+                Thread.sleep(100);
             } catch (RemoteException | NotBoundException | InterruptedException ignored) {}
         }
     }
@@ -133,6 +142,6 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
     public void stateChanged(ChangeEvent e)
     {
         viewingLevel = (int)levelSpinner.getValue();
-        updateText();
+        levelChanged = true;
     }
 }
