@@ -92,10 +92,9 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
     @Override
     public void run()
     {
-        boolean textChanged;
+        boolean textChanged = false;
         while(!Thread.interrupted())
         {
-            textChanged = false;
             try
             {
                 remoteEntries = ((RemoteLog) registry.lookup("Log")).getEntries();
@@ -113,7 +112,8 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
                     textChanged = true;
                 }
                 if (textChanged) updateText();
-                Thread.sleep(100);
+                textChanged = false;
+                Thread.sleep(200);
             } catch (RemoteException | NotBoundException | InterruptedException ignored) {}
         }
     }
