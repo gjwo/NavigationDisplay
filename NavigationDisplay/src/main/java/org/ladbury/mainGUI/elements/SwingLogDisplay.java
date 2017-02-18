@@ -14,6 +14,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * NavigationDisplay - org.ladbury.userInterfacePkg
@@ -129,7 +130,7 @@ public class SwingLogDisplay extends JPanel implements Runnable, ChangeListener
         return localEntries.stream()
                             .filter(le -> le.level.getLevel() <= level)
                             .map(le ->le.toString()+System.lineSeparator())
-                            .reduce("",String::concat);
+                            .collect(Collectors.joining());
     }
 
     @SuppressWarnings("unused")
